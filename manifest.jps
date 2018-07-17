@@ -8,3 +8,10 @@ description:
 name: GlusterFS Cluster
 targetRegions:
   type: vz7
+
+onInstall:
+  - installGlusterFS
+
+actions:
+  installGlusterFS:
+    cmd[storage]: yum -y install epel-release; yum -y update; yum -y install centos-release-gluster41; yum -y install glusterfs gluster-cli glusterfs-libs glusterfs-server; yum clean all;
