@@ -1,0 +1,10 @@
+type: install
+version: 1.5
+id: kubernetes
+baseUrl: https://raw.githubusercontent.com/SiryjVyiko/gluster_cluster/master
+description:
+  short: GlusterFS Cluster (Beta)
+
+name: GlusterFS Cluster
+targetRegions:
+  type: vz7
