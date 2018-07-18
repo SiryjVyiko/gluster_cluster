@@ -57,7 +57,7 @@ actions:
       user: root
   
   addPeer:
-    - cmd[${nodes.storage.master.id}]: gluster peer probe ${this.address};
+    - cmd[${nodes.storage.master.id}]: gluster peer probe ${this.address} && sleep 1;
                                                                                                                                                                                                                                  
   prepareVolumeBricks:                                                                                                                                                                                                                                                                                                                                                                                                 
     forEach(clusternode:nodes.storage):                                                                                                                                                                                          
@@ -93,4 +93,4 @@ actions:
         
   removeBrickFromVolume:
     - cmd[${nodes.storage.master.id}]: |-
-        let "NUMBER_OF_BRICKS=$(gluster peer status |grep 'Number of Peers'|awk '{print $4}') + 1"; gluster volume remove-brick jelastic replica ${NUMBER_OF_BRICKS} ${this.address}:/glustervolume commit;
+        NUMBER_OF_BRICKS=$(gluster peer status |grep 'Number of Peers'|awk '{print $4}'); yes 2>/dev/null | gluster volume remove-brick jelastic replica ${NUMBER_OF_BRICKS} ${this.address}:/glustervolume force;
