@@ -15,7 +15,10 @@ onInstall:
         id: ${@clusternode.id}
   - prepareVolumeBricks
   - initiateVolume
-  - mountDirectoryToVolume
+  - forEach(clusternode:nodes.storage):
+      mountDirectoryToVolume:
+        id: ${@clusternode.id}
+        address: ${@clusternode.address}
 
 onAfterServiceScaleOut[storage]:
   - forEach(newnode:event.response.nodes):
@@ -47,25 +50,38 @@ actions:
     - cmd[${this.id}]: |-
         yum -y install epel-release; yum -y update; yum -y install centos-release-gluster41; yum -y install glusterfs gluster-cli glusterfs-libs glusterfs-server; yum clean all; rm -rf /var/cache/yum; systemctl enable glusterd.service; /bin/systemctl start glusterd.service; mkdir -p /glustervolume ${settings.directory};
       user: root
+  
+  addPeer:
+    - cmd[${nodes.storage.master.id}]: gluster peer probe ${this.address};
                                                                                                                                                                                                                                  
   prepareVolumeBricks:                                                                                                                                                                                                                                                                                                                                                                                                 
     forEach(clusternode:nodes.storage):                                                                                                                                                                                          
       if (${@clusternode.id} != ${nodes.storage.master.id}):                                                                                                                                                                     
-        - cmd[${nodes.storage.master.id}]: |-
-            gluster peer probe ${@clusternode.address}
+        addPeer:
+            address: ${@clusternode.address}
           
   initiateVolume:
     - cmd[${nodes.storage.master.id}]: |-
-        NUMBER_OF_BRICKS=$(gluster peer status|grep Hostname| awk '{print $2}'| wc -l); BRICKS_ADDRESSES=$(gluster peer status|grep Hostname| awk '{print $2}'); BRICKS_STRING=""; for i in ${BRICKS_ADDRESSES}; do BRICKS_STRING="${BRICKS_STRING} ${i}:/glustervolume"; done; gluster volume create jelastic replica ${NUMBER_OF_BRICKS} transport tcp ${BRICKS_STRING} force; gluster volume start jelastic
+        BRICKS_ADDRESSES=$(gluster peer status|grep Hostname| awk '{print $2}'); BRICKS_STRING="${nodes.storage.master.address}:/glustervolume"; for i in ${BRICKS_ADDRESSES}; do BRICKS_STRING="${BRICKS_STRING} ${i}:/glustervolume"; done; gluster volume create jelastic replica ${settings.nodes} transport tcp ${BRICKS_STRING} force; gluster volume start jelastic
       user: root
+      
   mountDirectoryToVolume:
-    forEach(clusternode:nodes.storage):
-      - cmd[${@clusternode.id}]: |-
-          mount -t glusterfs ${@clusternode.address}:/jelastic ${settings.directory}
-        user: root
+    - cmd[${this.id}]: |-
+        mount -t glusterfs ${this.address}:/jelastic ${settings.directory}
+      user: root
+      
+  addNewNodeToVolume:
+    - cmd[${nodes.storage.master.id}]: |-
+        let "NUMBER_OF_BRICKS=$(gluster peer status |grep 'Number of Peers'|awk '{print $4}') + 1"; gluster volume add-brick jelastic replica ${NUMBER_OF_BRICKS} ${this.address}:/glustervolume force
+      user: root
         
   addBrickToVolume:
-    installGlusterFS:
-      id: ${this.id}
-    cmd[${nodes.storage.master.id}]: |-
-      gluster peer probe ${this.address}
+    - installGlusterFS:
+        id: ${this.id}
+    - addPeer:
+        address: ${this.address}
+    - addNewNodeToVolume:
+        address: ${this.address}
+    - mountDirectoryToVolume:
+        id: ${this.id}
+        address: ${this.address}
