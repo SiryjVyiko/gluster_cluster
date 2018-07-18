@@ -26,6 +26,11 @@ onAfterServiceScaleOut[storage]:
         address: ${@newnode.address}
         id: ${@newnode.id}
 
+onBeforeScaleIn[storage]:
+  - forEach(removednode:event.response.nodes):
+      removeBrickFromVolume:
+        address: ${@removednode.address}
+        
 settings:
   main:
     fields:
@@ -85,3 +90,7 @@ actions:
     - mountDirectoryToVolume:
         id: ${this.id}
         address: ${this.address}
+        
+  removeBrickFromVolume:
+    - cmd[${nodes.storage.master.id}]: |-
+        let "NUMBER_OF_BRICKS=$(gluster peer status |grep 'Number of Peers'|awk '{print $4}') + 1"; gluster volume remove-brick jelastic replica ${NUMBER_OF_BRICKS} ${this.address}:/glustervolume commit;
