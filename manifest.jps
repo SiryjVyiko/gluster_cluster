@@ -1,6 +1,6 @@
 type: install
 version: 1.5
-id: kubernetes
+id: gluster_cluster
 baseUrl: https://raw.githubusercontent.com/SiryjVyiko/gluster_cluster/master
 description:
   short: GlusterFS Cluster (Beta)
@@ -10,7 +10,12 @@ targetRegions:
   type: vz7
 
 onInstall:
-  - createReplicatedVolume
+  - forEach(clusternode:nodes.storage):
+      installGlusterFS: 
+        id: ${@clusternode.id}
+  - prepareVolumeBricks
+  - initiateVolume
+  - mountDirectoryToVolume
 
 onAfterServiceScaleOut[storage]:
   - forEach(newnode:event.response.nodes):
@@ -23,36 +28,41 @@ settings:
     fields:
     - name: directory
       caption: Path to 
-      type: text
-    - type: spinner
-      name: nodes
-      caption: N of nodes
-      min: 1
-      max: 5
-      default: 2
-
-nodes:
-  nodeType: storage
-  nodeGroup: storage
-  count: ${settings.nodes}
-  cloudlets: 8
-
-actions:
-  installGlusterFS:
-    cmd[${this.id}]: |-
-      yum -y install epel-release; yum -y update; yum -y install centos-release-gluster41; 
-      yum -y install glusterfs gluster-cli glusterfs-libs glusterfs-server; yum clean all;
-      systemctl enable glusterd.service; /bin/systemctl start glusterd.service; mkdir -p /glustervolume;
-
-  createReplicatedVolume: 
-    installGlusterFS:
-      id: ${nodes.storage.master.id}
+      type: text                                                                                                                                    
+    - type: spinner                                                                                                                                 
+      name: nodes                                                                                                                                                                                                                
+      caption: N of nodes                                                                                                                                                                                                        
+      min: 2                                                                                                                                                                                                                     
+      max: 5                                                                                                                                                                                                                     
+      default: 2                                                                                                                                                                                                                 
+                                                                                                                                                                                                                                 
+nodes:                                                                                                                                                                                                                           
+  nodeType: storage                                                                                                                                                                                                              
+  nodeGroup: storage                                                                                                                                                                                                             
+  count: ${settings.nodes}                                                                                                                                                                                                       
+  cloudlets: 8                                                                                                                                                                                                                   
+                                                                                                                                                                                                                                 
+actions:                                                                                                                                                                                                                         
+  installGlusterFS:                                                                                                                                                                                                              
+    - cmd[${this.id}]: |-
+        yum -y install epel-release; yum -y update; yum -y install centos-release-gluster41; yum -y install glusterfs gluster-cli glusterfs-libs glusterfs-server; yum clean all; rm -rf /var/cache/yum; systemctl enable glusterd.service; /bin/systemctl start glusterd.service; mkdir -p /glustervolume ${settings.directory};
+      user: root
+                                                                                                                                                                                                                                 
+  prepareVolumeBricks:                                                                                                                                                                                                                                                                                                                                                                                                 
+    forEach(clusternode:nodes.storage):                                                                                                                                                                                          
+      if (${@clusternode.id} != ${nodes.storage.master.id}):                                                                                                                                                                     
+        - cmd[${nodes.storage.master.id}]: |-
+            gluster peer probe ${@clusternode.address}
+          
+  initiateVolume:
+    - cmd[${nodes.storage.master.id}]: |-
+        NUMBER_OF_BRICKS=$(gluster peer status|grep Hostname| awk '{print $2}'| wc -l); BRICKS_ADDRESSES=$(gluster peer status|grep Hostname| awk '{print $2}'); BRICKS_STRING=""; for i in ${BRICKS_ADDRESSES}; do BRICKS_STRING="${BRICKS_STRING} ${i}:/glustervolume"; done; gluster volume create jelastic replica ${NUMBER_OF_BRICKS} transport tcp ${BRICKS_STRING} force; gluster volume start jelastic
+      user: root
+  mountDirectoryToVolume:
     forEach(clusternode:nodes.storage):
-      if (${@clusternode.id} != ${nodes.storage.master.id}):
-        installGlusterFS:
-          id: ${@clusternode.id}
-        cmd[${nodes.storage.master.id}]: |-
-          gluster peer probe ${@clusternode.address}
+      - cmd[${@clusternode.id}]: |-
+          mount -t glusterfs ${@clusternode.address}:/jelastic ${settings.directory}
+        user: root
         
   addBrickToVolume:
     installGlusterFS:
