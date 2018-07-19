@@ -31,6 +31,13 @@ onBeforeScaleIn[storage]:
       removeBrickFromVolume:
         address: ${@removednode.address}
         
+onAfterRedeployContainer[cp]:
+  - cmd[storage]: /bin/systemctl start glusterd.service && systemctl enable glusterd.service;
+  - forEach(clusternode:nodes.storage): 
+      mountDirectoryToVolume: 
+        id: ${@clusternode.id}                                                                                                                                                                                                   
+        address: ${@clusternode.address}  
+        
 settings:
   main:
     fields:
