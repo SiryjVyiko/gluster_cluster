@@ -11,7 +11,7 @@ targetRegions:
                                                                                                                                                                                                                                  
 onInstall:                                                                                                                                                                                                                       
   - forEach(clusternode:nodes.storage):                                                                                                                                                                                          
-      installGlusterFS:                                                                                                                                                                                                          
+      enableGlusterFS:                                                                                                                                                                                                          
         id: ${@clusternode.id}                                                                                                                                                                                                   
   - prepareVolumeBricks                                                                                                                                                                                                          
   - initiateVolume                                                                                                                                                                                                               
@@ -51,9 +51,9 @@ nodes:
   cloudlets: 8                                                                                                                                                                                                                   
                                                                                                                                                                                                                                  
 actions:                                                                                                                                                                                                                         
-  installGlusterFS:                                                                                                                                                                                                              
+  enableGlusterFS:                                                                                                                                                                                                              
     - cmd[${this.id}]: |-
-        yum -y install epel-release; yum -y update; yum -y install centos-release-gluster41; yum -y install glusterfs gluster-cli glusterfs-libs glusterfs-server; yum clean all; rm -rf /var/cache/yum; systemctl enable glusterd.service; /bin/systemctl start glusterd.service; mkdir -p /glustervolume ${settings.directory};
+        systemctl enable glusterd.service; /bin/systemctl start glusterd.service; mkdir -p /glustervolume ${settings.directory}; echo -e "/glustervolume\n/var/lib/glusterd/\n/var/log/glusterfs\n${settings.directory}" >> /etc/jelastic/redeploy.conf;
       user: root
   
   addPeer:
@@ -67,7 +67,7 @@ actions:
           
   initiateVolume:
     - cmd[${nodes.storage.master.id}]: |-
-        BRICKS_ADDRESSES=$(gluster peer status|grep Hostname| awk '{print $2}'); BRICKS_STRING="${nodes.storage.master.address}:/glustervolume"; for i in ${BRICKS_ADDRESSES}; do BRICKS_STRING="${BRICKS_STRING} ${i}:/glustervolume"; done; gluster volume create jelastic replica ${settings.nodes} transport tcp ${BRICKS_STRING} force; gluster volume start jelastic
+        let "NUMBER_OF_BRICKS=$(gluster peer status |grep 'Number of Peers'|awk '{print $4}') + 1"; BRICKS_ADDRESSES=$(gluster peer status|grep Hostname| awk '{print $2}'); BRICKS_STRING="${nodes.storage.master.address}:/glustervolume"; for i in ${BRICKS_ADDRESSES}; do BRICKS_STRING="${BRICKS_STRING} ${i}:/glustervolume"; done; gluster volume create jelastic replica ${NUMBER_OF_BRICKS} transport tcp ${BRICKS_STRING} force; gluster volume start jelastic
       user: root
       
   mountDirectoryToVolume:
@@ -81,7 +81,7 @@ actions:
       user: root
         
   addBrickToVolume:
-    - installGlusterFS:
+    - enableGlusterFS:
         id: ${this.id}
     - addPeer:
         address: ${this.address}
