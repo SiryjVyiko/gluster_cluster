@@ -1,27 +1,27 @@
-type: install
-version: 1.5
-id: gluster_cluster
-baseUrl: https://raw.githubusercontent.com/SiryjVyiko/gluster_cluster/master
-description:
-  short: GlusterFS Cluster (Beta)
-
-name: GlusterFS Cluster
-targetRegions:
-  type: vz7
-
-onInstall:
-  - forEach(clusternode:nodes.storage):
-      installGlusterFS: 
-        id: ${@clusternode.id}
-  - prepareVolumeBricks
-  - initiateVolume
-  - forEach(clusternode:nodes.storage):
-      mountDirectoryToVolume:
-        id: ${@clusternode.id}
-        address: ${@clusternode.address}
-
-onAfterServiceScaleOut[storage]:
-  - forEach(newnode:event.response.nodes):
+type: install                                                                                                                                                                                                                    
+version: 1.5                                                                                                                                                                                                                     
+id: gluster_cluster                                                                                                                                                                                                              
+baseUrl: https://raw.githubusercontent.com/SiryjVyiko/gluster_cluster/master                                                                                                                                                     
+description:                                                                                                                                                                                                                     
+  short: GlusterFS Cluster (Beta)                                                                                                                                                                                                
+                                                                                                                                                                                                                                 
+name: GlusterFS Cluster                                                                                                                                                                                                          
+targetRegions:                                                                                                                                                                                                                   
+  type: vz7                                                                                                                                                                                                                      
+                                                                                                                                                                                                                                 
+onInstall:                                                                                                                                                                                                                       
+  - forEach(clusternode:nodes.storage):                                                                                                                                                                                          
+      installGlusterFS:                                                                                                                                                                                                          
+        id: ${@clusternode.id}                                                                                                                                                                                                   
+  - prepareVolumeBricks                                                                                                                                                                                                          
+  - initiateVolume                                                                                                                                                                                                               
+  - forEach(clusternode:nodes.storage):                                                                                                                                                                                          
+      mountDirectoryToVolume:                                                                                                                                                                                                    
+        id: ${@clusternode.id}                                                                                                                                                                                                   
+        address: ${@clusternode.address}                                                                                                                                                                                         
+                                                                                                                                                                                                                                 
+onAfterServiceScaleOut[storage]:                                                                                                                                                                                                 
+  - forEach(newnode:event.response.nodes):                                                                                                                                                                                       
       addBrickToVolume:
         address: ${@newnode.address}
         id: ${@newnode.id}
@@ -36,7 +36,7 @@ settings:
     fields:
     - name: directory
       caption: Path to 
-      type: text                                                                                                                                    
+      type: string                                                                                                                                    
     - type: spinner                                                                                                                                 
       name: nodes                                                                                                                                                                                                                
       caption: N of nodes                                                                                                                                                                                                        
@@ -93,4 +93,4 @@ actions:
         
   removeBrickFromVolume:
     - cmd[${nodes.storage.master.id}]: |-
-        NUMBER_OF_BRICKS=$(gluster peer status |grep 'Number of Peers'|awk '{print $4}'); yes 2>/dev/null | gluster volume remove-brick jelastic replica ${NUMBER_OF_BRICKS} ${this.address}:/glustervolume force;
+        NUMBER_OF_BRICKS=$(gluster peer status |grep 'Number of Peers'|awk '{print $4}'); yes 2>/dev/null | gluster volume remove-brick jelastic replica ${NUMBER_OF_BRICKS} ${this.address}:/glustervolume force; gluster peer detach ${this.address} && sleep 1;
