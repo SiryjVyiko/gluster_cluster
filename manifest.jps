@@ -9,7 +9,10 @@ name: GlusterFS Cluster
 targetRegions:                                                                                                                                                                                                                   
   type: vz7                                                                                                                                                                                                                      
                                                                                                                                                                                                                                  
-onInstall:                                                                                                                                                                                                                       
+onInstall:        
+  - forEach(clusternode:nodes.storage):                                                                                                                                                                                          
+      cleanupNode:                                                                                                                                                                                                           
+        id: ${@clusternode.id}     
   - forEach(clusternode:nodes.storage):                                                                                                                                                                                          
       enableGlusterFS:                                                                                                                                                                                                           
         id: ${@clusternode.id}                                                                                                                                                                                                   
@@ -36,7 +39,13 @@ onAfterRedeployContainer[cp]:
   - forEach(clusternode:nodes.storage):                                                                                                                                                                                          
       mountDirectoryToVolume:                                                                                                                                                                                                    
         id: ${@clusternode.id}                                                                                                                                                                                                   
-        address: ${@clusternode.address}  
+        address: ${@clusternode.address}
+      
+onAfterClone:
+  install:
+    jps: ${baseUrl}/manifest.jps?_r=${fn.random}
+    envName: ${event.response.env.envName}
+    nodeGroup: storage
         
 settings:
   main:
@@ -57,7 +66,12 @@ nodes:
   count: ${settings.nodes}                                                                                                                                                                                                       
   cloudlets: 8                                                                                                                                                                                                                   
                                                                                                                                                                                                                                  
-actions:                                                                                                                                                                                                                         
+actions:      
+  cleanupNode:                                                                                                                                                                                                              
+    - cmd[${this.id}]: |-
+        service glusterd stop; kill -9 $(ps aux|grep gluster|grep -v grep|awk '{print $2}'); rm -rf /var/lib/glusterd/; service glusterd start;
+      user: root
+      
   enableGlusterFS:                                                                                                                                                                                                              
     - cmd[${this.id}]: |-
         systemctl enable glusterd.service; /bin/systemctl start glusterd.service; mkdir -p /glustervolume ${settings.directory}; echo -e "/glustervolume\n/var/lib/glusterd/\n/var/log/glusterfs\n${settings.directory}" >> /etc/jelastic/redeploy.conf;
