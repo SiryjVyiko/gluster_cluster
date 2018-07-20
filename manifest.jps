@@ -11,7 +11,7 @@ targetRegions:
                                                                                                                                                                                                                                  
 onInstall:                                                                                                                                                                                                                       
   - forEach(clusternode:nodes.storage):                                                                                                                                                                                          
-      enableGlusterFS:                                                                                                                                                                                                          
+      enableGlusterFS:                                                                                                                                                                                                           
         id: ${@clusternode.id}                                                                                                                                                                                                   
   - prepareVolumeBricks                                                                                                                                                                                                          
   - initiateVolume                                                                                                                                                                                                               
@@ -22,19 +22,19 @@ onInstall:
                                                                                                                                                                                                                                  
 onAfterServiceScaleOut[storage]:                                                                                                                                                                                                 
   - forEach(newnode:event.response.nodes):                                                                                                                                                                                       
-      addBrickToVolume:
-        address: ${@newnode.address}
-        id: ${@newnode.id}
-
-onBeforeScaleIn[storage]:
-  - forEach(removednode:event.response.nodes):
-      removeBrickFromVolume:
-        address: ${@removednode.address}
-        
-onAfterRedeployContainer[cp]:
-  - cmd[storage]: /bin/systemctl start glusterd.service && systemctl enable glusterd.service;
-  - forEach(clusternode:nodes.storage): 
-      mountDirectoryToVolume: 
+      addBrickToVolume:                                                                                                                                                                                                          
+        address: ${@newnode.address}                                                                                                                                                                                             
+        id: ${@newnode.id}                                                                                                                                                                                                       
+                                                                                                                                                                                                                                 
+onBeforeScaleIn[storage]:                                                                                                                                                                                                        
+  - forEach(removednode:event.response.nodes):                                                                                                                                                                                   
+      removeBrickFromVolume:                                                                                                                                                                                                     
+        address: ${@removednode.address}                                                                                                                                                                                         
+                                                                                                                                                                                                                                 
+onAfterRedeployContainer[cp]:                                                                                                                                                                                                    
+  - cmd[storage]: /bin/systemctl start glusterd.service && gluster volume start jelastic force && systemctl enable glusterd.service;                                                                                                                                    
+  - forEach(clusternode:nodes.storage):                                                                                                                                                                                          
+      mountDirectoryToVolume:                                                                                                                                                                                                    
         id: ${@clusternode.id}                                                                                                                                                                                                   
         address: ${@clusternode.address}  
         
