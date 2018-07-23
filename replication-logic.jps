@@ -52,7 +52,7 @@ actions:
       
   enableGlusterFS:                                                                                                                                                                                                              
     - cmd[${this.id}]: |-
-        systemctl enable glusterd.service; /bin/systemctl start glusterd.service; mkdir -p /glustervolume ${REPLICATED_DIRECTORY}; echo -e "/glustervolume\n/var/lib/glusterd/\n/var/log/glusterfs\n${settings.directory}" >> /etc/jelastic/redeploy.conf;
+        systemctl enable glusterd.service; /bin/systemctl start glusterd.service; mkdir -p /glustervolume ${REPLICATED_DIRECTORY}; echo -e "/glustervolume\n/var/lib/glusterd/\n/var/log/glusterfs\n${REPLICATED_DIRECTORY}" >> /etc/jelastic/redeploy.conf;
       user: root
   
   addPeer:
