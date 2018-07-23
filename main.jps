@@ -28,5 +28,5 @@ nodes:
   count: ${settings.nodes}                                                                                                                                                                                                       
   cloudlets: 8
   env:
-    ON_ENV_INSTALL: ${baseUrl}/replication-logic.jps
+    ON_ENV_INSTALL: ${baseUrl}/replication-logic.jps?_r=${fn.random}
     REPLICATED_DIRECTORY: ${settings.directory}
