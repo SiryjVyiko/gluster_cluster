@@ -3,10 +3,9 @@ version: 1.5
 id: gluster_cluster                                                                                                                                                                                                              
 baseUrl: https://raw.githubusercontent.com/SiryjVyiko/gluster_cluster/master                                                                                                                                                     
 description:                                                                                                                                                                                                                     
-  short: GlusterFS Cluster Replication Logic (Beta)                                                                                                                                                                                                
-                                                                                                                                                                                                                                 
+  short: GlusterFS Cluster Replication Logic (Beta)                                                                                                                                                                                                                                 
 name: GlusterFS Cluster Replication Logic
-                                                                                                                                                                                                                                 
+                                                                                                                                                                              
 onInstall:        
   - forEach(clusternode:nodes.storage):                                                                                                                                                                                          
       cleanupNode:                                                                                                                                                                                                           
@@ -44,8 +43,6 @@ onAfterClone:
     jps: ${baseUrl}/replication-logic.jps?_r=${fn.random}
     envName: ${event.response.env.envName}
     nodeGroup: storage
-    settings:
-      directory: ${settings.directory}
         
 actions:      
   cleanupNode:                                                                                                                                                                                                              
@@ -55,7 +52,7 @@ actions:
       
   enableGlusterFS:                                                                                                                                                                                                              
     - cmd[${this.id}]: |-
-        systemctl enable glusterd.service; /bin/systemctl start glusterd.service; mkdir -p /glustervolume ${settings.directory}; echo -e "/glustervolume\n/var/lib/glusterd/\n/var/log/glusterfs\n${settings.directory}" >> /etc/jelastic/redeploy.conf;
+        systemctl enable glusterd.service; /bin/systemctl start glusterd.service; mkdir -p /glustervolume ${REPLICATED_DIRECTORY}; echo -e "/glustervolume\n/var/lib/glusterd/\n/var/log/glusterfs\n${settings.directory}" >> /etc/jelastic/redeploy.conf;
       user: root
   
   addPeer:
@@ -74,7 +71,7 @@ actions:
       
   mountDirectoryToVolume:
     - cmd[${this.id}]: |-
-        mount -t glusterfs ${this.address}:/jelastic ${settings.directory}
+        mount -t glusterfs ${this.address}:/jelastic ${REPLICATED_DIRECTORY}
       user: root
       
   addNewNodeToVolume:
