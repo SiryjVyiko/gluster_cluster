@@ -1,0 +1,33 @@
+type: install                                                                                                                                                                                                                    
+version: 1.5                                                                                                                                                                                                                     
+id: gluster_cluster                                                                                                                                                                                                              
+baseUrl: https://raw.githubusercontent.com/SiryjVyiko/gluster_cluster/master                                                                                                                                                     
+description:                                                                                                                                                                                                                     
+  short: GlusterFS Cluster (Beta)
+
+name: GlusterFS Cluster                                                                                                                                                                                                          
+targetRegions:                                                                                                                                                                                                                   
+  type: vz7
+
+settings:
+  main:
+    fields:
+    - name: directory
+      caption: Path to 
+      type: string                                                                                                                                    
+    - type: spinner                                                                                                                                 
+      name: nodes                                                                                                                                                                                                                
+      caption: N of nodes                                                                                                                                                                                                        
+      min: 2                                                                                                                                                                                                                     
+      max: 5                                                                                                                                                                                                                     
+      default: 2                                                                                                                                                                                                                 
+                                                                                                                                                                                                                                 
+nodes:                                                                                                                                                                                                                           
+  nodeType: storage                                                                                                                                                                                                              
+  nodeGroup: storage                                                                                                                                                                                                             
+  count: ${settings.nodes}                                                                                                                                                                                                       
+  cloudlets: 8
+  env:
+    ON_ENV_INSTALL: ${baseUrl}/replication-logic.jps
+  settings:
+    directory: ${settings.directory}
