@@ -78,6 +78,9 @@ actions:
     - cmd[${nodes.storage.master.id}]: |-
         let "NUMBER_OF_BRICKS=$(gluster peer status |grep 'Number of Peers'|awk '{print $4}') + 1"; gluster volume add-brick jelastic replica ${NUMBER_OF_BRICKS} ${this.address}:/glustervolume force
       user: root
+  addAutoMount:
+    - cmd[${this.id}]: |-
+        echo "${this.address}:/jelastic   ${REPLICATED_DIRECTORY}   glusterfs   defaults,_netdev,noauto,x-systemd.automount 0 0" >> /etc/fstab;
         
   addBrickToVolume:
     - enableGlusterFS:
@@ -87,6 +90,9 @@ actions:
     - addNewNodeToVolume:
         address: ${this.address}
     - mountDirectoryToVolume:
+        id: ${this.id}
+        address: ${this.address}
+    - addAutoMount:
         id: ${this.id}
         address: ${this.address}
         
