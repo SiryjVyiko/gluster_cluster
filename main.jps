@@ -13,7 +13,7 @@ settings:
   main:
     fields:
     - name: directory
-      caption: Path to 
+      caption: Directory 
       type: string                                                                                                                                    
     - type: spinner                                                                                                                                 
       name: nodes                                                                                                                                                                                                                

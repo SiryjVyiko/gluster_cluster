@@ -33,7 +33,7 @@ onBeforeScaleIn[storage]:
         address: ${@removednode.address}                                                                                                                                                                                         
                                                                                                                                                                                                                                  
 onAfterRedeployContainer[cp]:                                                                                                                                                                                                    
-  - cmd[storage]: /bin/systemctl start glusterd.service && gluster volume start jelastic force && systemctl enable glusterd.service;                                                                                                                                    
+  - cmd[storage]: /bin/systemctl start glusterd.service && gluster volume start jelastic force && /bin/systemctl enable glusterd.service;                                                                                                                                    
   - forEach(clusternode:nodes.storage):                                                                                                                                                                                          
       mountDirectoryToVolume:                                                                                                                                                                                                    
         id: ${@clusternode.id}                                                                                                                                                                                                   
@@ -54,7 +54,7 @@ actions:
       
   enableGlusterFS:                                                                                                                                                                                                              
     - cmd[${this.id}]: |-
-        systemctl enable glusterd.service; /bin/systemctl start glusterd.service; mkdir -p /glustervolume ${REPLICATED_DIRECTORY}; 
+        /bin/systemctl enable glusterd.service; /bin/systemctl start glusterd.service; mkdir -p /glustervolume ${REPLICATED_DIRECTORY}; 
         echo -e "/glustervolume\n/var/lib/glusterd/\n/var/log/glusterfs\n${REPLICATED_DIRECTORY}" >> /etc/jelastic/redeploy.conf;
       user: root
   
