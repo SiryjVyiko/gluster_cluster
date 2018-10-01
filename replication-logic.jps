@@ -38,6 +38,9 @@ onAfterRedeployContainer[cp]:
       mountDirectoryToVolume:                                                                                                                                                                                                    
         id: ${@clusternode.id}                                                                                                                                                                                                   
         address: ${@clusternode.address}
+      addAutoMount:
+        id: ${this.id}
+        address: ${this.address}
       
 onAfterClone:
   install:
