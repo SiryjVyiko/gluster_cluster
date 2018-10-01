@@ -18,7 +18,11 @@ onInstall:
   - forEach(clusternode:nodes.storage):                                                                                                                                                                                          
       mountDirectoryToVolume:                                                                                                                                                                                                    
         id: ${@clusternode.id}                                                                                                                                                                                                   
-        address: ${@clusternode.address}                                                                                                                                                                                         
+        address: ${@clusternode.address}
+  - forEach(clusternode:nodes.storage):                                                                                                                                                                                          
+      addAutoMount:                                                                                                                                                                                                    
+        id: ${@clusternode.id}                                                                                                                                                                                                   
+        address: ${@clusternode.address}  
                                                                                                                                                                                                                                  
 onAfterServiceScaleOut[storage]:                                                                                                                                                                                                 
   - forEach(newnode:event.response.nodes):                                                                                                                                                                                       
@@ -38,9 +42,6 @@ onAfterRedeployContainer[cp]:
       mountDirectoryToVolume:                                                                                                                                                                                                    
         id: ${@clusternode.id}                                                                                                                                                                                                   
         address: ${@clusternode.address}
-      addAutoMount:
-        id: ${this.id}
-        address: ${this.address}
       
 onAfterClone:
   install:
