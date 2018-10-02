@@ -91,7 +91,7 @@ actions:
       user: root
   addAutoMount:
     - cmd[${this.id}]: |-
-        echo "${this.address}:/jelastic   ${REPLICATED_DIRECTORY}   glusterfs   defaults,_netdev,noauto,x-systemd.automount 0 0" >> /etc/fstab;
+        echo "${this.address}:/jelastic   ${REPLICATED_DIRECTORY}   glusterfs   defaults,_netdev,x-systemd.automount 0 0" >> /etc/fstab;
         
   addBrickToVolume:
     - enableGlusterFS:
