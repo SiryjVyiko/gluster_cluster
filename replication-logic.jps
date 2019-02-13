@@ -58,7 +58,6 @@ actions:
       
   enableGlusterFS:                                                                                                                                                                                                              
     - cmd[${this.id}]: |-
-        yum -y install epel-release; yum -y install centos-release-gluster41; yum -y install glusterfs gluster-cli glusterfs-libs glusterfs-server; yum clean all;
         /bin/systemctl enable glusterd.service; /bin/systemctl start glusterd.service; mkdir -p /glustervolume ${REPLICATED_DIRECTORY}; 
         echo -e "/glustervolume\n/var/lib/glusterd/\n/var/log/glusterfs\n${REPLICATED_DIRECTORY}" >> /etc/jelastic/redeploy.conf;
       user: root
