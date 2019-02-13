@@ -60,6 +60,7 @@ actions:
     - cmd[${this.id}]: |-
         /bin/systemctl enable glusterd.service; /bin/systemctl start glusterd.service; mkdir -p /glustervolume ${REPLICATED_DIRECTORY}; 
         echo -e "/glustervolume\n/var/lib/glusterd/\n/var/log/glusterfs\n${REPLICATED_DIRECTORY}" >> /etc/jelastic/redeploy.conf;
+        echo "\"/tmp\"  127.0.0.1(ro,fsid=root)" >> /etc/exports
       user: root
   
   addPeer:
