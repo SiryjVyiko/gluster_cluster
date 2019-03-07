@@ -83,6 +83,7 @@ actions:
   mountDirectoryToVolume:
     - cmd[${this.id}]: |-
         mount -t glusterfs ${this.address}:/jelastic ${REPLICATED_DIRECTORY}
+        chmod 777 ${REPLICATED_DIRECTORY}
       user: root
       
   addNewNodeToVolume:
