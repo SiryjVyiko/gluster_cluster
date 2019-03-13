@@ -14,7 +14,9 @@ settings:
     fields:
     - name: directory
       caption: Directory 
-      type: string                                                                                                                                    
+      type: string
+      default: "/data"
+      regex: ^(\/[\w^ ]+)+\/?$
     - type: spinner                                                                                                                                 
       name: nodes                                                                                                                                                                                                                
       caption: N of nodes                                                                                                                                                                                                        
