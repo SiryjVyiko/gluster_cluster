@@ -58,8 +58,8 @@ actions:
       
   enableGlusterFS:                                                                                                                                                                                                              
     - cmd[${this.id}]: |-
-        /bin/systemctl enable glusterd.service; /bin/systemctl start glusterd.service; mkdir -p /glustervolume ${REPLICATED_DIRECTORY}; 
-        echo -e "/glustervolume\n/var/lib/glusterd/\n/var/log/glusterfs\n${REPLICATED_DIRECTORY}" >> /etc/jelastic/redeploy.conf;
+        /bin/systemctl enable glusterd.service; /bin/systemctl start glusterd.service; mkdir -p /glustervolume /data; 
+        echo -e "/glustervolume\n/var/lib/glusterd/\n/var/log/glusterfs\n/data" >> /etc/jelastic/redeploy.conf;
         echo "\"/tmp\"  127.0.0.1(ro,fsid=root)" >> /etc/exports
       user: root
   
@@ -82,8 +82,8 @@ actions:
       
   mountDirectoryToVolume:
     - cmd[${this.id}]: |-
-        mount -t glusterfs ${this.address}:/jelastic ${REPLICATED_DIRECTORY}
-        chmod 777 ${REPLICATED_DIRECTORY}
+        mount -t glusterfs ${this.address}:/jelastic /data
+        chmod 777 /data
       user: root
       
   addNewNodeToVolume:
@@ -93,7 +93,7 @@ actions:
       user: root
   addAutoMount:
     - cmd[${this.id}]: |-
-        echo "${this.address}:/jelastic   ${REPLICATED_DIRECTORY}   glusterfs   defaults,_netdev,x-systemd.automount 0 0" >> /etc/fstab;
+        echo "${this.address}:/jelastic  /data   glusterfs   defaults,_netdev,x-systemd.automount 0 0" >> /etc/fstab;
         
   addBrickToVolume:
     - enableGlusterFS:
