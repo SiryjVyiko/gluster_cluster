@@ -12,7 +12,7 @@ targetRegions:
 settings:
   main:
     fields:
-    - name: directory
+    - name: replicatedPath
       caption: Directory 
       type: string
       default: "/data"
@@ -31,4 +31,4 @@ nodes:
   cloudlets: 8
   env:
     ON_ENV_INSTALL: ${baseUrl}/replication-logic.jps?_r=${fn.random}
-    REPLICATED_DIRECTORY: ${settings.directory}
+    REPLICATED_DIRECTORY: ${settings.replicatedPath}
