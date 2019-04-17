@@ -7,7 +7,7 @@ description:
 name: GlusterFS Cluster Replication Logic
 
 globals:
-  replicatedPath: "/data"
+  replicatedPath: ${settings.replicatedPath:/data}
                                                                                                                                                                               
 onInstall:        
   - forEach(clusternode:nodes.storage):                                                                                                                                                                                          
