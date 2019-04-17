@@ -5,6 +5,9 @@ baseUrl: https://raw.githubusercontent.com/SiryjVyiko/gluster_cluster/master
 description:                                                                                                                                                                                                                     
   short: GlusterFS Cluster Replication Logic (Beta)                                                                                                                                                                                                                                 
 name: GlusterFS Cluster Replication Logic
+
+globals:
+  replicatedPath: ${settings.replicatedPath}
                                                                                                                                                                               
 onInstall:        
   - forEach(clusternode:nodes.storage):                                                                                                                                                                                          
@@ -58,8 +61,8 @@ actions:
       
   enableGlusterFS:                                                                                                                                                                                                              
     - cmd[${this.id}]: |-
-        /bin/systemctl enable glusterd.service; /bin/systemctl start glusterd.service; mkdir -p /glustervolume ${settings.replicatedPath}; 
-        echo -e "/glustervolume\n/var/lib/glusterd/\n/var/log/glusterfs\n${settings.replicatedPath}" >> /etc/jelastic/redeploy.conf;
+        /bin/systemctl enable glusterd.service; /bin/systemctl start glusterd.service; mkdir -p /glustervolume ${globals.replicatedPath}; 
+        echo -e "/glustervolume\n/var/lib/glusterd/\n/var/log/glusterfs\n${globals.replicatedPath}" >> /etc/jelastic/redeploy.conf;
         echo "\"/tmp\"  127.0.0.1(ro,fsid=root)" >> /etc/exports
       user: root
   
@@ -82,8 +85,8 @@ actions:
       
   mountDirectoryToVolume:
     - cmd[${this.id}]: |-
-        mount -t glusterfs ${this.address}:/jelastic ${settings.replicatedPath}
-        chmod 777 ${settings.replicatedPath}
+        mount -t glusterfs ${this.address}:/jelastic ${globals.replicatedPath}
+        chmod 777 ${globals.replicatedPath}
       user: root
       
   addNewNodeToVolume:
@@ -93,7 +96,7 @@ actions:
       user: root
   addAutoMount:
     - cmd[${this.id}]: |-
-        echo "${this.address}:/jelastic  ${settings.replicatedPath}   glusterfs   defaults,_netdev,x-systemd.automount 0 0" >> /etc/fstab;
+        echo "${this.address}:/jelastic  ${globals.replicatedPath}   glusterfs   defaults,_netdev,x-systemd.automount 0 0" >> /etc/fstab;
         
   addBrickToVolume:
     - enableGlusterFS:
