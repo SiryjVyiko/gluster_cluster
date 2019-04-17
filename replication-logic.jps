@@ -10,6 +10,7 @@ globals:
   replicatedPath: ${settings.replicatedPath:/data}
                                                                                                                                                                               
 onInstall:        
+  - log: ${settings.print()}
   - forEach(clusternode:nodes.storage):                                                                                                                                                                                          
       cleanupNode:                                                                                                                                                                                                           
         id: ${@clusternode.id}     
