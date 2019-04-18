@@ -62,7 +62,7 @@ actions:
       
   enableGlusterFS:                                                                                                                                                                                                              
     - cmd[${this.id}]: |-
-        /bin/systemctl enable glusterd.service; /bin/systemctl start glusterd.service; mkdir -p /glustervolume ${globals.replicatedPath}; 
+        /bin/systemctl enable glusterd.service; /bin/systemctl start glusterd.service; rm -rf ${globals.replicatedPath}; mkdir -p /glustervolume ${globals.replicatedPath}; 
         echo -e "/glustervolume\n/var/lib/glusterd/\n/var/log/glusterfs\n${globals.replicatedPath}" >> /etc/jelastic/redeploy.conf;
         echo "\"/tmp\"  127.0.0.1(ro,fsid=root)" >> /etc/exports
       user: root
