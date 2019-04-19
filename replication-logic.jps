@@ -19,7 +19,7 @@ onInstall:
         id: ${@clusternode.id}                                                                                                                                                                                                   
   - prepareVolumeBricks                                                                                                                                                                                                          
   - initiateVolume
-  - if (settings.cloned != 'true'):
+  - if (settings.cloned == 'true'):
       cmd[storage]: umount {globals.replicatedPath};                                                                                                                                                                                                                
   - forEach(clusternode:nodes.storage):                                                                                                                                                                                          
       mountDirectoryToVolume:                                                                                                                                                                                                    
