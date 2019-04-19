@@ -43,11 +43,16 @@ onBeforeRemoveNode[storage]:
         address: ${@removednode.address}                                                                                                                                                                                         
                                                                                                                                                                                                                                  
 onAfterRedeployContainer[storage]:                                                                                                                                                                                                    
-  - cmd[storage]: /bin/systemctl start glusterd.service && gluster volume start jelastic force && /bin/systemctl enable glusterd.service;                                                                                                                                    
+  - cmd[storage]: /bin/systemctl start glusterd.service && /bin/systemctl enable glusterd.service;
+  - cmd[${nodes.storage.master.id}]: gluster volume start jelastic force
   - forEach(clusternode:nodes.storage):                                                                                                                                                                                          
       mountDirectoryToVolume:                                                                                                                                                                                                    
         id: ${@clusternode.id}                                                                                                                                                                                                   
         address: ${@clusternode.address}
+  - forEach(clusternode:nodes.storage):                                                                                                                                                                                          
+      addAutoMount:                                                                                                                                                                                                    
+        id: ${@clusternode.id}                                                                                                                                                                                                   
+        address: ${@clusternode.address}  
       
 onAfterClone:
   install:
