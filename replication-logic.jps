@@ -11,6 +11,8 @@ globals:
                                                                                                                                                                               
 onInstall:        
   - log: ${settings.print()}
+  - if (settings.cloned == 'true'):
+      cmd[storage]: umount ${globals.replicatedPath};   
   - forEach(clusternode:nodes.storage):                                                                                                                                                                                          
       cleanupNode:                                                                                                                                                                                                           
         id: ${@clusternode.id}     
@@ -18,9 +20,7 @@ onInstall:
       enableGlusterFS:                                                                                                                                                                                                           
         id: ${@clusternode.id}                                                                                                                                                                                                   
   - prepareVolumeBricks                                                                                                                                                                                                          
-  - initiateVolume
-  - if (settings.cloned == 'true'):
-      cmd[storage]: umount {globals.replicatedPath};                                                                                                                                                                                                                
+  - initiateVolume                                                                                                                                                                                                             
   - forEach(clusternode:nodes.storage):                                                                                                                                                                                          
       mountDirectoryToVolume:                                                                                                                                                                                                    
         id: ${@clusternode.id}                                                                                                                                                                                                   
