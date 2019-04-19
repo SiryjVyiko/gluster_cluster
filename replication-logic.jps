@@ -18,7 +18,9 @@ onInstall:
       enableGlusterFS:                                                                                                                                                                                                           
         id: ${@clusternode.id}                                                                                                                                                                                                   
   - prepareVolumeBricks                                                                                                                                                                                                          
-  - initiateVolume                                                                                                                                                                                                               
+  - initiateVolume
+  - if (settings.cloned != 'true'):
+      cmd[storage]: umount {globals.replicatedPath};                                                                                                                                                                                                                
   - forEach(clusternode:nodes.storage):                                                                                                                                                                                          
       mountDirectoryToVolume:                                                                                                                                                                                                    
         id: ${@clusternode.id}                                                                                                                                                                                                   
@@ -52,6 +54,9 @@ onAfterClone:
     jps: ${baseUrl}/replication-logic.jps?_r=${fn.random}
     envName: ${event.response.env.envName}
     nodeGroup: storage
+    settings:
+      cloned: 'true'
+      replicatedPath: {globals.replicatedPath}
         
 actions:      
   cleanupNode:                                                                                                                                                                                                              
@@ -64,6 +69,7 @@ actions:
     - cmd[${this.id}]: |-
         /bin/systemctl enable glusterd.service; /bin/systemctl start glusterd.service; mkdir -p /glustervolume ${globals.replicatedPath}; 
         echo -e "/glustervolume\n/var/lib/glusterd/\n/var/log/glusterfs\n${globals.replicatedPath}" >> /etc/jelastic/redeploy.conf;
+        sed -i '/"\/tmp"  127\.0\.0\.1(ro,fsid=root)/d' /etc/exports;
         echo "\"/tmp\"  127.0.0.1(ro,fsid=root)" >> /etc/exports
       user: root
   
@@ -97,6 +103,7 @@ actions:
       user: root
   addAutoMount:
     - cmd[${this.id}]: |-
+        sed -i '/glusterfs/d' /etc/fstab;
         echo "${this.address}:/jelastic  ${globals.replicatedPath}   glusterfs   defaults,_netdev,x-systemd.automount 0 0" >> /etc/fstab;
         
   addBrickToVolume:
