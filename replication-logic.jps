@@ -58,7 +58,6 @@ actions:
     - cmd[${this.id}]: |-
         service glusterd stop; GLUSTER_PROCESS=$(ps aux|grep gluster|grep -v grep|awk '{print $2}'); 
         [ -n "${GLUSTER_PROCESS}" ] && kill -9 ${GLUSTER_PROCESS}; rm -rf /var/lib/glusterd/; 
-        sed -i '/glusterfs/d' /etc/fstab; sed -i '/"\/tmp"  127\.0\.0\.1(ro,fsid=root)/d' /etc/exports;
       user: root
       
   enableGlusterFS:                                                                                                                                                                                                              
