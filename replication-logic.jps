@@ -36,8 +36,7 @@ onAfterServiceScaleOut[storage]:
         address: ${@newnode.address}                                                                                                                                                                                             
         id: ${@newnode.id}
                                                                                                                                                                                                                                  
-onBeforeRemoveNode[storage]:
-  - if (nodes.storage.length == 2): stopEvent                                                                                                                                                
+onBeforeRemoveNode[storage]:                                                                                                                                             
   - forEach(removednode:event.response.nodes):                                                                                                                                                                                   
       removeBrickFromVolume:                                                                                                                                                                                                     
         address: ${@removednode.address}                                                                                                                                                                                         
