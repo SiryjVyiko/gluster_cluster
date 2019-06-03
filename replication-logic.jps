@@ -36,7 +36,7 @@ onAfterServiceScaleOut[storage]:
         address: ${@newnode.address}                                                                                                                                                                                             
         id: ${@newnode.id}
                                                                                                                                                                                                                                  
-onBeforeRemoveNode[storage]:                                                                                                                                             
+onBeforeScaleIn[storage]:                                                                                                                                             
   - forEach(removednode:event.response.nodes):                                                                                                                                                                                   
       removeBrickFromVolume:                                                                                                                                                                                                     
         address: ${@removednode.address}                                                                                                                                                                                         
@@ -128,4 +128,4 @@ actions:
     - cmd[${nodes.storage.master.id}]: |-
         NUMBER_OF_BRICKS=$(gluster peer status |grep 'Number of Peers'|awk '{print $4}'); 
         yes 2>/dev/null | gluster volume remove-brick jelastic replica ${NUMBER_OF_BRICKS} ${this.address}:/glustervolume force; 
-        yes 2>/dev/null | gluster peer detach ${this.address} && sleep 1;
+        gluster peer detach ${this.address} && sleep 1;
