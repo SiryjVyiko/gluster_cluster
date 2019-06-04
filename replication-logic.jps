@@ -39,7 +39,10 @@ onAfterServiceScaleOut[storage]:
 onBeforeScaleIn[storage]:                                                                                                                                             
   - forEach(removednode:event.response.nodes):                                                                                                                                                                                   
       removeBrickFromVolume:                                                                                                                                                                                                     
-        address: ${@removednode.address}                                                                                                                                                                                         
+        address: ${@removednode.address}     
+        
+onBeforeScaleOut[cp]:
+  - stopEvent
                                                                                                                                                                                                                                  
 onAfterRedeployContainer[storage]:                                                                                                                                                                                                    
   - cmd[storage]: /bin/systemctl start glusterd.service && /bin/systemctl enable glusterd.service;
