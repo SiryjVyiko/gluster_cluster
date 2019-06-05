@@ -97,10 +97,10 @@ actions:
   mountDirectoryToVolume:
     - cmd[${this.id}]: |-
         dataBackupDir=$(mktemp -d)
-        [ -z "$(ls -A /data)" ] && mv ${globals.replicatedPath}/* ${dataBackupDir}/
+        [ -n "$(ls -A /${dataBackupDir})" ] && mv ${globals.replicatedPath}/* ${dataBackupDir}/
         mount -t glusterfs ${this.address}:/jelastic ${globals.replicatedPath}
         chmod 777 ${globals.replicatedPath}
-        [ -z "$(ls -A /${dataBackupDir})" ] && mv ${dataBackupDir}/* ${globals.replicatedPath}/
+        [ -n "$(ls -A /${dataBackupDir})" ] && mv ${dataBackupDir}/* ${globals.replicatedPath}/
         rm -rf ${dataBackupDir}
       user: root
       
