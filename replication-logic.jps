@@ -100,7 +100,7 @@ actions:
         [ -n "$(ls -A /${globals.replicatedPath})" ] && mv ${globals.replicatedPath}/* ${dataBackupDir}/
         sed -i '/glusterfs/d' /etc/fstab;
         echo "${this.address}:/jelastic  ${globals.replicatedPath}   glusterfs   defaults,_netdev,x-systemd.automount,backupvolfile-server=${this.address} 0 0" >> /etc/fstab;
-        chmod 777 ${globals.replicatedPath}
+        mount -a; chmod 777 ${globals.replicatedPath};
         [ -n "$(ls -A /${dataBackupDir})" ] && mv ${dataBackupDir}/* ${globals.replicatedPath}/
         rm -rf ${dataBackupDir}
       user: root
