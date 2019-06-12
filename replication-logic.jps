@@ -98,7 +98,8 @@ actions:
     - cmd[${this.id}]: |-
         dataBackupDir=$(mktemp -d)
         [ -n "$(ls -A /${globals.replicatedPath})" ] && mv ${globals.replicatedPath}/* ${dataBackupDir}/
-        mount -t glusterfs -o backupvolfile-server=${this.address} ${this.address}:/jelastic ${globals.replicatedPath}
+        sed -i '/glusterfs/d' /etc/fstab;
+        echo "${this.address}:/jelastic  ${globals.replicatedPath}   glusterfs   defaults,_netdev,x-systemd.automount,backupvolfile-server=${this.address} 0 0" >> /etc/fstab;
         chmod 777 ${globals.replicatedPath}
         [ -n "$(ls -A /${dataBackupDir})" ] && mv ${dataBackupDir}/* ${globals.replicatedPath}/
         rm -rf ${dataBackupDir}
@@ -109,11 +110,6 @@ actions:
         let "NUMBER_OF_BRICKS=$(gluster peer status |grep 'Number of Peers'|awk '{print $4}') + 1"; 
         gluster volume add-brick jelastic replica ${NUMBER_OF_BRICKS} ${this.address}:/glustervolume force
       user: root
-
-  addAutoMount:
-    - cmd[${this.id}]: |-
-        sed -i '/glusterfs/d' /etc/fstab;
-        echo "${this.address}:/jelastic  ${globals.replicatedPath}   glusterfs   defaults,_netdev,x-systemd.automount,backupvolfile-server=${this.address} 0 0" >> /etc/fstab;
         
   addBrickToVolume:
     - enableGlusterFS:
@@ -123,9 +119,6 @@ actions:
     - addNewNodeToVolume:
         address: ${this.address}
     - mountDirectoryToVolume:
-        id: ${this.id}
-        address: ${this.address}
-    - addAutoMount:
         id: ${this.id}
         address: ${this.address}
         
