@@ -43,7 +43,7 @@ onBeforeScaleIn[storage]:
                                                                                                                                                                                                                                  
 onAfterRedeployContainer[storage]:                                                                                                                                                                                                    
   - cmd[storage]: /bin/systemctl start glusterd.service && /bin/systemctl enable glusterd.service;
-  - cmd[${nodes.storage.master.id}]: gluster volume start jelastic force; gluster volume set jelastic network.ping-timeout 3;
+  - cmd[${nodes.storage.master.id}]: gluster volume start jelastic force;
   - forEach(clusternode:nodes.storage):                                                                                                                                                                                          
       mountDirectoryToVolume:                                                                                                                                                                                                    
         id: ${@clusternode.id}                                                                                                                                                                                                   
@@ -91,7 +91,7 @@ actions:
         let "NUMBER_OF_BRICKS=$(gluster peer status |grep 'Number of Peers'|awk '{print $4}') + 1"; 
         BRICKS_ADDRESSES=$(gluster peer status|grep Hostname| awk '{print $2}'); BRICKS_STRING="${nodes.storage.master.address}:/glustervolume"; 
         for i in ${BRICKS_ADDRESSES}; do BRICKS_STRING="${BRICKS_STRING} ${i}:/glustervolume"; done; 
-        gluster volume create jelastic replica ${NUMBER_OF_BRICKS} transport tcp ${BRICKS_STRING} force; gluster volume start jelastic; gluster volume set jelastic network.ping-timeout 3;
+        gluster volume create jelastic replica ${NUMBER_OF_BRICKS} transport tcp ${BRICKS_STRING} force; gluster volume start jelastic;
       user: root
       
   mountDirectoryToVolume:
