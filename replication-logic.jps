@@ -98,7 +98,7 @@ actions:
     - cmd[${this.id}]: |-
         dataBackupDir=$(mktemp -d)
         [ -n "$(ls -A /${globals.replicatedPath})" ] && mv ${globals.replicatedPath}/* ${dataBackupDir}/
-        mount -t glusterfs ${this.address}:/jelastic ${globals.replicatedPath}
+        mount -t glusterfs -o backupvolfile-server=${this.address} ${this.address}:/jelastic ${globals.replicatedPath}
         chmod 777 ${globals.replicatedPath}
         [ -n "$(ls -A /${dataBackupDir})" ] && mv ${dataBackupDir}/* ${globals.replicatedPath}/
         rm -rf ${dataBackupDir}
@@ -113,7 +113,7 @@ actions:
   addAutoMount:
     - cmd[${this.id}]: |-
         sed -i '/glusterfs/d' /etc/fstab;
-        echo "${this.address}:/jelastic  ${globals.replicatedPath}   glusterfs   defaults,_netdev,x-systemd.automount 0 0" >> /etc/fstab;
+        echo "${this.address}:/jelastic  ${globals.replicatedPath}   glusterfs   defaults,_netdev,x-systemd.automount,backupvolfile-server=${this.address} 0 0" >> /etc/fstab;
         
   addBrickToVolume:
     - enableGlusterFS:
