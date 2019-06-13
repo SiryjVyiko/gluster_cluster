@@ -18,7 +18,8 @@ onAfterServiceScaleOut[storage]:
         address: ${@newnode.address}                                                                                                                                                                                             
         id: ${@newnode.id}
   - forEach(newnode:event.response.nodes):
-      addGlusterServiceOverride
+      addGlusterServiceOverride:
+        id: ${@clusternode.id} 
                                                                                                                                                                                                                                  
 onBeforeScaleIn[storage]:                                                                                                                                             
   - forEach(removednode:event.response.nodes):                                                                                                                                                                                   
@@ -37,7 +38,8 @@ onAfterRedeployContainer[storage]:
         id: ${@clusternode.id}                                                                                                                                                                                                   
         address: ${@clusternode.address}
   - forEach(clusternode:nodes.storage):
-      addGlusterServiceOverride
+      addGlusterServiceOverride:
+        id: ${@clusternode.id} 
       
 onAfterClone:
   install:
@@ -72,7 +74,8 @@ actions:
           id: ${@clusternode.id}                                                                                                                                                                                                   
           address: ${@clusternode.address}
     - forEach(clusternode:nodes.storage):
-        addGlusterServiceOverride
+        addGlusterServiceOverride:
+          id: ${@clusternode.id}
         
   cleanupNode:                                                                                                                                                                                                              
     - cmd[${this.id}]: |-
