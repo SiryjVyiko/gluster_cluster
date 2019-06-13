@@ -10,7 +10,6 @@ globals:
   replicatedPath: ${settings.replicatedPath:/data}
                                                                                                                                                                               
 onInstall:        
-  - log: ${settings.print()}
   - if (settings.cloned == 'true'):
       cmd[storage]: umount ${globals.replicatedPath};   
   - forEach(clusternode:nodes.storage):                                                                                                                                                                                          
@@ -61,7 +60,26 @@ onAfterClone:
     settings:
       cloned: 'true'
       replicatedPath: {globals.replicatedPath}
-        
+
+onAfterMigrate:
+  - cmd[storage]: umount ${globals.replicatedPath};   
+  - forEach(clusternode:nodes.storage):                                                                                                                                                                                          
+      cleanupNode:                                                                                                                                                                                                           
+        id: ${@clusternode.id}     
+  - forEach(clusternode:nodes.storage):                                                                                                                                                                                          
+      enableGlusterFS:                                                                                                                                                                                                           
+        id: ${@clusternode.id}                                                                                                                                                                                                   
+  - prepareVolumeBricks                                                                                                                                                                                                          
+  - initiateVolume                                                                                                                                                                                                             
+  - forEach(clusternode:nodes.storage):                                                                                                                                                                                          
+      mountDirectoryToVolume:                                                                                                                                                                                                    
+        id: ${@clusternode.id}                                                                                                                                                                                                   
+        address: ${@clusternode.address}
+  - forEach(clusternode:nodes.storage):                                                                                                                                                                                          
+      addAutoMount:                                                                                                                                                                                                    
+        id: ${@clusternode.id}                                                                                                                                                                                                   
+        address: ${@clusternode.address} 
+
 actions:      
   cleanupNode:                                                                                                                                                                                                              
     - cmd[${this.id}]: |-
