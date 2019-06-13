@@ -125,7 +125,7 @@ actions:
         echo "localhost:/jelastic  ${globals.replicatedPath}   glusterfs   defaults,_netdev,x-systemd.automount,backupvolfile-server=localhost 0 0" >> /etc/fstab;
         
   addGlusterServiceOverride:
-    - cmd[${this.id}]: echo "function postRestartCallback(){ restartServiceSilent glusterd; }" > /var/lib/jelastic/overrides/service.lib
+    - cmd[${this.id}]: echo "function postRestartCallback(){ restartServiceSilent glusterd; restartServiceSilent glusterfsd; }" > /var/lib/jelastic/overrides/service.lib
         
   addBrickToVolume:
     - enableGlusterFS:
