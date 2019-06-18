@@ -52,8 +52,6 @@ onAfterMigrate:
 
 actions:
   initiateGlusterFSCluster:
-    - if (settings.cloned == 'true'):
-        cmd[storage]: umount ${globals.replicatedPath};   
     - forEach(clusternode:nodes.storage):                                                                                                                                                                                          
         cleanupNode:                                                                                                                                                                                                           
           id: ${@clusternode.id}     
