@@ -65,8 +65,6 @@ actions:
         - addAutoMount:                                                                                                                                                                                                    
             id: ${@clusternode.id}                                                                                                                                                                                                   
             address: ${@clusternode.address}
-        - addGlusterServiceOverride:
-            id: ${@clusternode.id}
         
   cleanupNode:                                                                                                                                                                                                              
     - cmd[${this.id}]: |-
