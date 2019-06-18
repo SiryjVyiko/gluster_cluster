@@ -47,6 +47,9 @@ onAfterClone:
       cloned: 'true'
       replicatedPath: {globals.replicatedPath}
 
+onAfterMigrate:	
+  initiateGlusterFSCluster
+
 actions:
   initiateGlusterFSCluster:
     - if (settings.cloned == 'true'):	
