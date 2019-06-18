@@ -47,13 +47,13 @@ onAfterClone:
       cloned: 'true'
       replicatedPath: {globals.replicatedPath}
 
-onAfterMigrate:	
+onAfterMigrate:
   initiateGlusterFSCluster
 
 actions:
   initiateGlusterFSCluster:
-    - if (settings.cloned == 'true'):	
-        cmd[storage]: umount ${globals.replicatedPath};
+    - if (settings.cloned == 'true'):
+        cmd[storage]: umount ${globals.replicatedPath};   
     - forEach(clusternode:nodes.storage):                                                                                                                                                                                          
         cleanupNode:                                                                                                                                                                                                           
           id: ${@clusternode.id}     
@@ -106,10 +106,10 @@ actions:
   mountDirectoryToVolume:
     - cmd[${this.id}]: |-
         dataBackupDir=$(mktemp -d)
-        [ -n "$(ls -A /${globals.replicatedPath})" ] && { shopt -s dotglob; mv ${globals.replicatedPath}/* ${dataBackupDir}/; shopt -u dotglob; }
+        [ -n "$(ls -A /${globals.replicatedPath})" ] && mv ${globals.replicatedPath}/* ${dataBackupDir}/
         mount.glusterfs localhost:/jelastic ${globals.replicatedPath}
         chmod 777 ${globals.replicatedPath}
-        [ -n "$(ls -A /${dataBackupDir})" ] && mv { shopt -s dotglob; ${dataBackupDir}/* ${globals.replicatedPath}/; shopt -u dotglob; }
+        [ -n "$(ls -A /${dataBackupDir})" ] && mv ${dataBackupDir}/* ${globals.replicatedPath}/
         rm -rf ${dataBackupDir}
       user: root
       
