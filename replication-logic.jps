@@ -17,8 +17,6 @@ onAfterServiceScaleOut[storage]:
       - addBrickToVolume:                                                                                                                                                                                                          
           address: ${@newnode.address}                                                                                                                                                                                             
           id: ${@newnode.id}
-      - addGlusterServiceOverride:
-          id: ${@clusternode.id} 
                                                                                                                                                                                                                                  
 onBeforeScaleIn[storage]:                                                                                                                                             
   - forEach(removednode:event.response.nodes):                                                                                                                                                                                   
@@ -35,8 +33,6 @@ onAfterRedeployContainer[storage]:
       - addAutoMount:                                                                                                                                                                                                    
           id: ${@clusternode.id}                                                                                                                                                                                                   
           address: ${@clusternode.address}
-      - addGlusterServiceOverride:
-          id: ${@clusternode.id} 
       
 onAfterClone:
   install:
@@ -123,9 +119,6 @@ actions:
     - cmd[${this.id}]: |-
         sed -i '/glusterfs/d' /etc/fstab;
         echo "localhost:/jelastic  ${globals.replicatedPath}   glusterfs   defaults,_netdev,x-systemd.automount,backupvolfile-server=localhost 0 0" >> /etc/fstab;
-        
-  addGlusterServiceOverride:
-    - cmd[${this.id}]: echo "function postRestartCallback(){ restartServiceSilent glusterd; restartServiceSilent glusterfsd; }" > /var/lib/jelastic/overrides/service.lib
         
   addBrickToVolume:
     - enableGlusterFS:
