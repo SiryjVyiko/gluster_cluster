@@ -65,6 +65,8 @@ actions:
         - addAutoMount:                                                                                                                                                                                                    
             id: ${@clusternode.id}                                                                                                                                                                                                   
             address: ${@clusternode.address}
+        - fixExistingMounts:                                                                                                                                                                                                    
+            id: ${@clusternode.id}  
         
   cleanupNode:                                                                                                                                                                                                              
     - cmd[${this.id}]: |-
@@ -131,6 +133,11 @@ actions:
     - addAutoMount:
         id: ${this.id}
         address: ${this.address}
+        
+  fixExistingMounts:
+    - cmd[${this.id}]: |-
+        LINE_NUMBER=0
+        while read LINE; do let LINE_NUMBER++; FSID=$(cat /proc/sys/kernel/random/uuid); grep -q '^\"/data' <<< $LINE && sed -i "${LINE_NUMBER}s/)$/,fsid=${FSID})/" /etc/exports || true; done < /etc/exports;
         
   removeBrickFromVolume:
     - cmd[${nodes.storage.master.id}]: |-
