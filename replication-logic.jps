@@ -133,6 +133,8 @@ actions:
     - addAutoMount:
         id: ${this.id}
         address: ${this.address}
+    - fixExistingMounts: 
+        id: ${this.id}
         
   fixExistingMounts:
     - cmd[${this.id}]: |-
