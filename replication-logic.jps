@@ -49,7 +49,16 @@ onAfterMigrate:
 actions:
   initiateGlusterFSCluster:
     - if (settings.cloned == 'true'):
-        cmd[storage]: umount ${globals.replicatedPath};   
+        cmd[storage]: umount ${globals.replicatedPath};
+    - environment.file.read: 
+        nodeId: ${nodes.storage.master.id}
+        path: /etc/exports
+        user: root
+    - environment.file.write:
+        nodeGroup: storage
+        path: /etc/exports
+        user: root
+        body: ${response.body}
     - forEach(clusternode:nodes.storage):                                                                                                                                                                                          
         cleanupNode:                                                                                                                                                                                                           
           id: ${@clusternode.id}     
