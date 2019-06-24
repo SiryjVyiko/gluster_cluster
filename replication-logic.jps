@@ -48,8 +48,7 @@ onAfterMigrate:
 
 actions:
   initiateGlusterFSCluster:
-    - if (settings.cloned == 'true'):
-        cmd[storage]: umount ${globals.replicatedPath};
+    - cmd[storage]: umount ${globals.replicatedPath} || true;
     - environment.file.read: 
         nodeId: ${nodes.storage.master.id}
         path: /etc/exports
