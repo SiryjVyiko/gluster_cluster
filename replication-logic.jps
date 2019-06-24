@@ -40,7 +40,6 @@ onAfterClone:
     envName: ${event.response.env.envName}
     nodeGroup: storage
     settings:
-      cloned: 'true'
       replicatedPath: {globals.replicatedPath}
 
 onAfterMigrate:
