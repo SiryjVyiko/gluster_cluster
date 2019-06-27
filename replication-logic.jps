@@ -42,9 +42,6 @@ onAfterClone:
     settings:
       replicatedPath: {globals.replicatedPath}
 
-onAfterMigrate:
-  initiateGlusterFSCluster
-
 actions:
   initiateGlusterFSCluster:
     - cmd[storage]: umount ${globals.replicatedPath} || true;
