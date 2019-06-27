@@ -43,7 +43,7 @@ onAfterClone:
       replicatedPath: {globals.replicatedPath}
 
 onBeforeMigrate:
-  - cmd[storage]: [ -e /etc/exports ] && echo "" > /etc/exports || true;
+  - cmd[storage]: [ -e /etc/exports ] && rm -f /etc/exports || true;
 
 onAfterMigrate:
   initiateGlusterFSCluster
