@@ -43,7 +43,7 @@ onAfterClone:
       replicatedPath: {globals.replicatedPath}
 
 onBeforeMigrate:
-  - cmd[storage]: umount ${globals.replicatedPath} || true; echo "" > /etc/exports || true;
+  - cmd[storage]: umount -l ${globals.replicatedPath} || true; echo "" > /etc/exports || true;
 
 onAfterMigrate:
   initiateGlusterFSCluster
