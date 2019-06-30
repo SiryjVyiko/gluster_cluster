@@ -41,12 +41,6 @@ onAfterClone:
     nodeGroup: storage
     settings:
       replicatedPath: {globals.replicatedPath}
-      
-onBeforeMigrate:
-  - cmd[storage]: umount -l ${globals.replicatedPath} || true; sed -i '/glusterfs/d' /etc/fstab;
-  
-onAfterMigrate:
-  initiateGlusterFSCluster
 
 actions:
   initiateGlusterFSCluster:
