@@ -10,8 +10,11 @@ globals:
   replicatedPath: ${settings.replicatedPath:/data}
                                                                                                                                                                               
 onInstall:        
-  initiateGlusterFSCluster  
-                                                                                                                                                                                                                                 
+  initiateGlusterFSCluster
+
+onAfterStart:
+  - cmd[storage]: mount -a; exportfs -ra;
+
 onAfterServiceScaleOut[storage]:                                                                                                                                                                                                 
   - forEach(newnode:event.response.nodes):                                                                                                                                                                                       
       - addBrickToVolume:                                                                                                                                                                                                          
