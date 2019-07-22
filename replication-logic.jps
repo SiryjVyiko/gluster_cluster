@@ -130,7 +130,7 @@ actions:
   addAutoMount:
     - cmd[${this.id}]: |-
         sed -i '/glusterfs/d' /etc/fstab;
-        echo "localhost:/jelastic  ${globals.replicatedPath}   glusterfs   defaults,_netdev,x-systemd.automount,backupvolfile-server=localhost 0 0" >> /etc/fstab;
+        echo "localhost:/jelastic  ${globals.replicatedPath}   glusterfs   defaults,_netdev,x-systemd.automount 0 0" >> /etc/fstab;
         
   addBrickToVolume:
     - enableGlusterFS:
