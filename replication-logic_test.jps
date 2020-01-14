@@ -39,8 +39,8 @@ onAfterRedeployContainer[storage]:
 
 onBeforeRedeployContainer[storage]:                                                                                                                                                                                                    
   - cmd[storage]: |-
-      SHARED_DIRECTORIES=$(eval echo $(cat /etc/exports|grep "^\"\/data"|awk '{print $1}'|grep -v "^#.*"))
-      [ -n "${SHARED_DIRECTORIES}" ] && { umount -l /data; mkdir -p $(eval echo $(cat /etc/exports|grep "^\"\/data"|awk '{print $1}'|grep -v "^#.*")); } || true;
+      SHARED_DIRECTORIES=$(eval echo $(cat /etc/exports|grep "^\"\${globals.replicatedPath}"|awk '{print $1}'|grep -v "^#.*"))
+      [ -n "${SHARED_DIRECTORIES}" ] && { umount -l ${globals.replicatedPath}; mkdir -p $(eval echo $(cat /etc/exports|grep "^\"\${globals.replicatedPath}"|awk '{print $1}'|grep -v "^#.*")); } || true;
     user: root
       
 onAfterClone:
