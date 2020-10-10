@@ -28,7 +28,7 @@ onBeforeScaleIn[storage]:
                                                                                                                                                                                                                                  
 onAfterRedeployContainer[storage]:                                                                                                                                                                                                    
   - cmd[storage]: /bin/systemctl start glusterd.service && /bin/systemctl enable glusterd.service;
-  - cmd[${nodes.storage.master.id}]: set -o pipefail; gluster --log-level=TRACE --log-file=stdout volume start jelastic force 2>&1 | tee -a /var/log/glusterfs/glusterd.log; 
+  - cmd[${nodes.storage.master.id}]: set -o pipefail; gluster --log-level=TRACE --log-file=/dev/stdout volume start jelastic force | tee -a /var/log/glusterfs/glusterd.log; 
   - cmd[${nodes.storage.master.id}]: gluster volume set jelastic network.ping-timeout 3;
   - forEach(clusternode:nodes.storage):                                                                                                                                                                                          
       - mountDirectoryToVolume:                                                                                                                                                                                                    
@@ -98,7 +98,7 @@ actions:
       user: root
   
   addPeer:
-    - cmd[${nodes.storage.master.id}]: set -o pipefail; gluster --log-level=TRACE --log-file=stdout peer probe ${this.address} | tee -a /var/log/glusterfs/glusterd.log && sleep 1;
+    - cmd[${nodes.storage.master.id}]: set -o pipefail; gluster --log-level=TRACE --log-file=/dev/stdout peer probe ${this.address} | tee -a /var/log/glusterfs/glusterd.log && sleep 1;
                                                                                                                                                                                                                                  
   prepareVolumeBricks:                                                                                                                                                                                                                                                                                                                                                                                                 
     forEach(clusternode:nodes.storage):                                                                                                                                                                                          
