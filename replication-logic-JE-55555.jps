@@ -1,5 +1,5 @@
 type: update                                                                                                                                                                                                                    
-version: 1.5                                                                                                                                                                                                                     
+version: 1.6                                                                                                                                                                                                                     
 id: gluster_cluster                                                                                                                                                                                                              
 baseUrl: https://raw.githubusercontent.com/jelastic-jps/glusterfs/master                                                                                                                                             
 description:                                                                                                                                                                                                                     
@@ -19,15 +19,15 @@ onAfterStart:
   - cmd[storage]: mount -a; exportfs -ra;
 
 onAfterServiceScaleOut[storage]:                                                                                                                                                                                                 
-  - forEach(newnode:event.response.nodes):                                                                                                                                                                                       
+  - forEach(event.response.nodes):                                                                                                                                                                                       
       - addBrickToVolume:                                                                                                                                                                                                          
-          address: ${@newnode.address}                                                                                                                                                                                             
-          id: ${@newnode.id}
+          address: ${@i.address}                                                                                                                                                                                             
+          id: ${@i.id}
                                                                                                                                                                                                                                  
 onBeforeScaleIn[storage]:                                                                                                                                             
-  - forEach(removednode:event.response.nodes):                                                                                                                                                                                   
+  - forEach(event.response.nodes):                                                                                                                                                                                   
       removeBrickFromVolume:                                                                                                                                                                                                     
-        address: ${@removednode.address}     
+        address: ${@i.address}     
                                                                                                                                                                                                                                  
 onAfterRedeployContainer[storage]:                                                                                                                                                                                                    
   - cmd[storage]: /bin/systemctl start glusterd.service && /bin/systemctl enable glusterd.service;
@@ -67,25 +67,25 @@ actions:
         path: /etc/exports
         user: root
         body: ${response.body}
-    - forEach(clusternode:nodes.storage):                                                                                                                                                                                          
+    - forEach(nodes.storage):                                                                                                                                                                                          
         cleanupNode:                                                                                                                                                                                                           
-          id: ${@clusternode.id}     
-    - forEach(clusternode:nodes.storage):                                                                                                                                                                                          
+          id: ${@i.id}     
+    - forEach(nodes.storage):                                                                                                                                                                                          
         enableGlusterFS:                                                                                                                                                                                                           
-          id: ${@clusternode.id}                                                                                                                                                                                                   
+          id: ${@i.id}                                                                                                                                                                                                   
     - prepareVolumeBricks                                                                                                                                                                                                          
     - initiateVolume                                                                                                                                                                                                             
-    - forEach(clusternode:nodes.storage):                                                                                                                                                                                          
+    - forEach(nodes.storage):                                                                                                                                                                                          
         - mountDirectoryToVolume:                                                                                                                                                                                                    
-            id: ${@clusternode.id}                                                                                                                                                                                                   
-            address: ${@clusternode.address}                                                                                                                                                                                      
+            id: ${@i.id}                                                                                                                                                                                                   
+            address: ${@i.address}                                                                                                                                                                                      
         - addAutoMount:                                                                                                                                                                                                    
-            id: ${@clusternode.id}                                                                                                                                                                                                   
-            address: ${@clusternode.address}
+            id: ${@i.id}                                                                                                                                                                                                   
+            address: ${@i.address}
         - fixExistingMounts:                                                                                                                                                                                                    
-            id: ${@clusternode.id}  
+            id: ${@i.id}  
         - checkStatus:                                                                                                                                                                                                    
-            id: ${@clusternode.id}  
+            id: ${@i.id}  
         
   cleanupNode:                                                                                                                                                                                                              
     - cmd[${this.id}]: |-
