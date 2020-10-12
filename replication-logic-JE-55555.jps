@@ -67,15 +67,15 @@ actions:
         path: /etc/exports
         user: root
         body: ${response.body}
-    - forEach(clusternode:nodes.storage):                                                                                                                                                                                          
+    - forEach(clusternode:event.response.nodes):                                                                                                                                                                                          
         cleanupNode:                                                                                                                                                                                                           
           id: ${@clusternode.id}     
-    - forEach(clusternode:nodes.storage):                                                                                                                                                                                          
+    - forEach(clusternode:event.response.nodes):                                                                                                                                                                                          
         enableGlusterFS:                                                                                                                                                                                                           
           id: ${@clusternode.id}                                                                                                                                                                                                   
     - prepareVolumeBricks                                                                                                                                                                                                          
     - initiateVolume                                                                                                                                                                                                             
-    - forEach(clusternode:nodes.storage):                                                                                                                                                                                          
+    - forEach(clusternode:event.response.nodes):                                                                                                                                                                                          
         - mountDirectoryToVolume:                                                                                                                                                                                                    
             id: ${@clusternode.id}                                                                                                                                                                                                   
             address: ${@clusternode.address}                                                                                                                                                                                      
