@@ -6,6 +6,9 @@ description:
   short: GlusterFS Cluster Replication Logic (Beta)                                                                                                                                                                                                                                 
 name: GlusterFS Cluster Replication Logic
 
+nodeGroupAlias:
+  ${settings.nodeGroup}: cp
+
 globals:
   replicatedPath: ${settings.replicatedPath:/data}
                                                                                                                                                                               
