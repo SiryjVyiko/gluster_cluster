@@ -6,9 +6,6 @@ description:
   short: GlusterFS Cluster Replication Logic (Beta)                                                                                                                                                                                                                                 
 name: GlusterFS Cluster Replication Logic
 
-nodeGroupAlias:
-  ${targetNodes.nodeGroup}: storage
-
 globals:
   replicatedPath: ${settings.replicatedPath:/data}
                                                                                                                                                                               
@@ -67,15 +64,15 @@ actions:
         path: /etc/exports
         user: root
         body: ${response.body}
-    - forEach(clusternode:event.response.nodes):                                                                                                                                                                                          
+    - forEach(clusternode:nodes.storage):                                                                                                                                                                                          
         cleanupNode:                                                                                                                                                                                                           
           id: ${@clusternode.id}     
-    - forEach(clusternode:event.response.nodes):                                                                                                                                                                                          
+    - forEach(clusternode:nodes.storage):                                                                                                                                                                                          
         enableGlusterFS:                                                                                                                                                                                                           
           id: ${@clusternode.id}                                                                                                                                                                                                   
     - prepareVolumeBricks                                                                                                                                                                                                          
     - initiateVolume                                                                                                                                                                                                             
-    - forEach(clusternode:event.response.nodes):                                                                                                                                                                                          
+    - forEach(clusternode:nodes.storage):                                                                                                                                                                                          
         - mountDirectoryToVolume:                                                                                                                                                                                                    
             id: ${@clusternode.id}                                                                                                                                                                                                   
             address: ${@clusternode.address}                                                                                                                                                                                      
