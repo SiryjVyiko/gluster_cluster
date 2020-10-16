@@ -7,12 +7,12 @@ description:
 name: GlusterFS Cluster Replication Logic
 
 nodeGroupAlias:
-  ${targetNodes.nodeGroup}: storage
+  ${settings.nodeGroup}: storage
 
 globals:
   replicatedPath: ${settings.replicatedPath:/data}
                                                                                                                                                                               
-onInstall:        
+onInstall:
   initiateGlusterFSCluster
 
 onAfterStart:
