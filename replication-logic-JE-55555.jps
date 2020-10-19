@@ -6,8 +6,10 @@ description:
   short: GlusterFS Cluster Replication Logic (Beta)                                                                                                                                                                                                                                 
 name: GlusterFS Cluster Replication Logic
 
+targetNodes: none
+
 nodeGroupAlias:
-  ${settings.nodeGroup}: storage
+  ${settings.nodeGroup}: group
 
 globals:
   replicatedPath: ${settings.replicatedPath:/data}
@@ -16,24 +18,24 @@ onInstall:
   initiateGlusterFSCluster
 
 onAfterStart:
-  - cmd[storage]: mount -a; exportfs -ra;
+  - cmd[group]: mount -a; exportfs -ra;
 
-onAfterServiceScaleOut[storage]:                                                                                                                                                                                                 
+onAfterServiceScaleOut[group]:                                                                                                                                                                                                 
   - forEach(event.response.nodes):                                                                                                                                                                                       
       - addBrickToVolume:                                                                                                                                                                                                          
           address: ${@i.address}                                                                                                                                                                                             
           id: ${@i.id}
                                                                                                                                                                                                                                  
-onBeforeScaleIn[storage]:                                                                                                                                             
+onBeforeScaleIn[group]:                                                                                                                                             
   - forEach(event.response.nodes):                                                                                                                                                                                   
       removeBrickFromVolume:                                                                                                                                                                                                     
         address: ${@i.address}     
                                                                                                                                                                                                                                  
-onAfterRedeployContainer[storage]:                                                                                                                                                                                                    
-  - cmd[storage]: /bin/systemctl start glusterd.service && /bin/systemctl enable glusterd.service;
-  - cmd[${nodes.storage.master.id}]: set -o pipefail; gluster --log-level=TRACE --log-file=/dev/stdout volume start jelastic force | tee -a /var/log/glusterfs/glusterd.log; 
-  - cmd[${nodes.storage.master.id}]: gluster volume set jelastic network.ping-timeout 3;
-  - forEach(clusternode:nodes.storage):                                                                                                                                                                                          
+onAfterRedeployContainer[group]:                                                                                                                                                                                                    
+  - cmd[group]: /bin/systemctl start glusterd.service && /bin/systemctl enable glusterd.service;
+  - cmd[${nodes.group.master.id}]: set -o pipefail; gluster --log-level=TRACE --log-file=/dev/stdout volume start jelastic force | tee -a /var/log/glusterfs/glusterd.log; 
+  - cmd[${nodes.group.master.id}]: gluster volume set jelastic network.ping-timeout 3;
+  - forEach(clusternode:nodes.group):                                                                                                                                                                                          
       - mountDirectoryToVolume:                                                                                                                                                                                                    
           id: ${@clusternode.id}                                                                                                                                                                                                   
           address: ${@clusternode.address}                                                                                                                                                                                   
@@ -50,32 +52,32 @@ onAfterClone:
       replicatedPath: {globals.replicatedPath}
       
 onBeforeMigrate:
-  - cmd[storage]: umount -l ${globals.replicatedPath} || true; sed -i '/glusterfs/d' /etc/fstab; rm -rf ${globals.replicatedPath}
+  - cmd[group]: umount -l ${globals.replicatedPath} || true; sed -i '/glusterfs/d' /etc/fstab; rm -rf ${globals.replicatedPath}
   
 onAfterMigrate:
   initiateGlusterFSCluster
 
 actions:
   initiateGlusterFSCluster:
-    - cmd[storage]: umount ${globals.replicatedPath} || true;
+    - cmd[group]: umount ${globals.replicatedPath} || true;
     - environment.file.read: 
-        nodeId: ${nodes.storage.master.id}
+        nodeId: ${nodes.group.master.id}
         path: /etc/exports
         user: root
     - environment.file.write:
-        nodeGroup: storage
+        nodeGroup: group
         path: /etc/exports
         user: root
         body: ${response.body}
-    - forEach(nodes.storage):                                                                                                                                                                                          
+    - forEach(nodes.group):                                                                                                                                                                                          
         cleanupNode:                                                                                                                                                                                                           
           id: ${@i.id}     
-    - forEach(nodes.storage):                                                                                                                                                                                          
+    - forEach(nodes.group):                                                                                                                                                                                          
         enableGlusterFS:                                                                                                                                                                                                           
           id: ${@i.id}                                                                                                                                                                                                   
     - prepareVolumeBricks                                                                                                                                                                                                          
     - initiateVolume                                                                                                                                                                                                             
-    - forEach(nodes.storage):                                                                                                                                                                                          
+    - forEach(nodes.group):                                                                                                                                                                                          
         - mountDirectoryToVolume:                                                                                                                                                                                                    
             id: ${@i.id}                                                                                                                                                                                                   
             address: ${@i.address}                                                                                                                                                                                      
@@ -101,16 +103,16 @@ actions:
       user: root
   
   addPeer:
-    - cmd[${nodes.storage.master.id}]: set -o pipefail; gluster --log-level=TRACE --log-file=/dev/stdout peer probe ${this.address} | tee -a /var/log/glusterfs/glusterd.log && sleep 1;
+    - cmd[${nodes.group.master.id}]: set -o pipefail; gluster --log-level=TRACE --log-file=/dev/stdout peer probe ${this.address} | tee -a /var/log/glusterfs/glusterd.log && sleep 1;
                                                                                                                                                                                                                                  
   prepareVolumeBricks:                                                                                                                                                                                                                                                                                                                                                                                                 
-    forEach(clusternode:nodes.storage):                                                                                                                                                                                          
-      if (${@clusternode.id} != ${nodes.storage.master.id}):                                                                                                                                                                     
+    forEach(clusternode:nodes.group):                                                                                                                                                                                          
+      if (${@clusternode.id} != ${nodes.group.master.id}):                                                                                                                                                                     
         addPeer:
             address: ${@clusternode.address}
           
   initiateVolume:
-    - cmd[${nodes.storage.master.id}]: |-
+    - cmd[${nodes.group.master.id}]: |-
         let "NUMBER_OF_BRICKS=$(gluster peer status |grep 'Number of Peers'|awk '{print $4}') + 1"; 
         BRICKS_ADDRESSES=$(gluster peer status|grep Hostname| awk '{print $2}'); BRICKS_STRING="${nodes.storage.master.address}:/glustervolume"; 
         for i in ${BRICKS_ADDRESSES}; do BRICKS_STRING="${BRICKS_STRING} ${i}:/glustervolume"; done; 
@@ -128,7 +130,7 @@ actions:
       user: root
       
   addNewNodeToVolume:
-    - cmd[${nodes.storage.master.id}]: |-
+    - cmd[${nodes.group.master.id}]: |-
         let "NUMBER_OF_BRICKS=$(gluster peer status |grep 'Number of Peers'|awk '{print $4}') + 1"; 
         gluster volume add-brick jelastic replica ${NUMBER_OF_BRICKS} ${this.address}:/glustervolume force
       user: root
@@ -164,7 +166,7 @@ actions:
         gluster volume status;
         
   removeBrickFromVolume:
-    - cmd[${nodes.storage.master.id}]: |-
+    - cmd[${nodes.group.master.id}]: |-
         NUMBER_OF_BRICKS=$(gluster peer status |grep 'Number of Peers'|awk '{print $4}'); 
         yes 2>/dev/null | gluster volume remove-brick jelastic replica ${NUMBER_OF_BRICKS} ${this.address}:/glustervolume force; 
         gluster peer detach ${this.address} && sleep 1;
