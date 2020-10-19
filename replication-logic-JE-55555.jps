@@ -34,7 +34,7 @@ onBeforeScaleIn[group]:
 onAfterRedeployContainer[group]:                                                                                                                                                                                                    
   - cmd[group]: /bin/systemctl start glusterd.service && /bin/systemctl enable glusterd.service;
   - cmd[${nodes.group.master.id}]: set -o pipefail; gluster --log-level=TRACE --log-file=/dev/stdout volume start jelastic force | tee -a /var/log/glusterfs/glusterd.log; 
-  - cmd[${nodes.group.master.id}]: gluster volume set jelastic network.ping-timeout 3;
+  - cmd[${nodes.group.master.id}]: gluster volume set jelastic network.ping-timeout 3; gluster volume set jelastic server.ssl off; gluster volume set jelastic client.ssl off;
   - forEach(clusternode:nodes.group):                                                                                                                                                                                          
       - mountDirectoryToVolume:                                                                                                                                                                                                    
           id: ${@clusternode.id}                                                                                                                                                                                                   
