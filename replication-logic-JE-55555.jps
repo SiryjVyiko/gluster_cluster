@@ -47,7 +47,7 @@ onAfterClone:
   install:
     jps: ${baseUrl}/replication-logic.jps?_r=${fn.random}
     envName: ${event.response.env.envName}
-    nodeGroup: storage
+    nodeGroup: group
     settings:
       replicatedPath: {globals.replicatedPath}
       
@@ -114,7 +114,7 @@ actions:
   initiateVolume:
     - cmd[${nodes.group.master.id}]: |-
         let "NUMBER_OF_BRICKS=$(gluster peer status |grep 'Number of Peers'|awk '{print $4}') + 1"; 
-        BRICKS_ADDRESSES=$(gluster peer status|grep Hostname| awk '{print $2}'); BRICKS_STRING="${nodes.storage.master.address}:/glustervolume"; 
+        BRICKS_ADDRESSES=$(gluster peer status|grep Hostname| awk '{print $2}'); BRICKS_STRING="${nodes.group.master.address}:/glustervolume"; 
         for i in ${BRICKS_ADDRESSES}; do BRICKS_STRING="${BRICKS_STRING} ${i}:/glustervolume"; done; 
         gluster volume create jelastic replica ${NUMBER_OF_BRICKS} transport tcp ${BRICKS_STRING} force; gluster volume start jelastic; gluster volume set jelastic network.ping-timeout 3;
       user: root
