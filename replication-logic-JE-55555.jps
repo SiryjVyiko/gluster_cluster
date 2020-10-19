@@ -60,7 +60,7 @@ actions:
   initiateGlusterFSCluster:
     - cmd[group]: umount ${globals.replicatedPath} || true;
     - environment.file.read: 
-        nodeId: ${nodes[globals.targetNG].master.id}
+        nodeId: ${nodes[${globals.targetNG}].master.id}
         path: /etc/exports
         user: root
     - environment.file.write:
