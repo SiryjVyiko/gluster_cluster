@@ -47,7 +47,7 @@ onAfterClone:
   install:
     jps: ${baseUrl}/replication-logic.jps?_r=${fn.random}
     envName: ${event.response.env.envName}
-    nodeGroup: group
+    nodeGroup: ${settings.nodeGroup}
     settings:
       replicatedPath: {globals.replicatedPath}
       
@@ -65,7 +65,7 @@ actions:
         path: /etc/exports
         user: root
     - environment.file.write:
-        nodeGroup: group
+        nodeGroup: ${settings.nodeGroup}
         path: /etc/exports
         user: root
         body: ${response.body}
