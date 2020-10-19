@@ -11,6 +11,7 @@ nodeGroupAlias:
 
 globals:
   replicatedPath: ${settings.replicatedPath:/data}
+  targetNG: ${settings.nodeGroup}
                                                                                                                                                                               
 onInstall:
   initiateGlusterFSCluster
@@ -59,7 +60,7 @@ actions:
   initiateGlusterFSCluster:
     - cmd[group]: umount ${globals.replicatedPath} || true;
     - environment.file.read: 
-        nodeId: ${nodes.group.master.id}
+        nodeId: ${nodes[globals.targetNG].master.id}
         path: /etc/exports
         user: root
     - environment.file.write:
