@@ -49,7 +49,7 @@ onAfterClone:
       replicatedPath: {globals.replicatedPath}
       
 onBeforeMigrate:
-  - cmd[storage]: umount -l ${globals.replicatedPath} || true; sed -i '/glusterfs/d' /etc/fstab; rm -rf ${globals.replicatedPath}
+  - cmd[storage]: systemctl stop $(systemd-escape -p --suffix=automount ${globals.replicatedPath}); umount -l ${globals.replicatedPath} || true; sed -i '/glusterfs/d' /etc/fstab; rm -rf ${globals.replicatedPath}
   
 onAfterMigrate:
   initiateGlusterFSCluster
