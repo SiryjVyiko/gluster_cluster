@@ -31,8 +31,8 @@ onBeforeScaleIn[storage]:
                                                                                                                                                                                                                                  
 onAfterRedeployContainer[storage]:                                                                                                                                                                                                    
   - cmd[storage]: /bin/systemctl start glusterd.service && /bin/systemctl enable glusterd.service;
-  - cmd[${nodes.storage.master.id}]: set -o pipefail; gluster --log-level=TRACE --log-file=/dev/stdout volume start jelastic force | tee -a /var/log/glusterfs/glusterd.log;
-  - cmd[${nodes.storage.master.id}]: gluster volume set jelastic network.ping-timeout 3;
+  - cmd[${nodes.storage.master.id}]: set -o pipefail; gluster --log-level=TRACE --log-file=/dev/stdout volume start data force | tee -a /var/log/glusterfs/glusterd.log;
+  - cmd[${nodes.storage.master.id}]: gluster volume set data network.ping-timeout 3;
   - forEach(clusternode:nodes.storage):                                                                                                                                                                                          
       - mountDirectoryToVolume:                                                                                                                                                                                                    
           id: ${@clusternode.id}                                                                                                                                                                                                   
@@ -114,14 +114,14 @@ actions:
         let "NUMBER_OF_BRICKS=$(gluster peer status |grep 'Number of Peers'|awk '{print $4}') + 1"; 
         BRICKS_ADDRESSES=$(gluster peer status|grep Hostname| awk '{print $2}'); BRICKS_STRING="${nodes.storage.master.address}:/glustervolume"; 
         for i in ${BRICKS_ADDRESSES}; do BRICKS_STRING="${BRICKS_STRING} ${i}:/glustervolume"; done; 
-        gluster volume create jelastic replica ${NUMBER_OF_BRICKS} transport tcp ${BRICKS_STRING} force; gluster volume start jelastic; gluster volume set jelastic network.ping-timeout 3;
+        gluster volume create data replica ${NUMBER_OF_BRICKS} transport tcp ${BRICKS_STRING} force; gluster volume start data; gluster volume set data network.ping-timeout 3;
       user: root
       
   mountDirectoryToVolume:
     - cmd[${this.id}]: |-
         dataBackupDir=$(mktemp -d)
         [ -n "$(ls -A /${globals.replicatedPath})" ] && { shopt -s dotglob; mv ${globals.replicatedPath}/* ${dataBackupDir}/; shopt -u dotglob; };
-        mount.glusterfs localhost:/jelastic ${globals.replicatedPath}
+        mount.glusterfs localhost:/data ${globals.replicatedPath}
         chmod 777 ${globals.replicatedPath}
         [ -n "$(ls -A /${dataBackupDir})" ] && { shopt -s dotglob; mv ${dataBackupDir}/* ${globals.replicatedPath}/; shopt -u dotglob; };
         rm -rf ${dataBackupDir}
@@ -130,13 +130,13 @@ actions:
   addNewNodeToVolume:
     - cmd[${nodes.storage.master.id}]: |-
         let "NUMBER_OF_BRICKS=$(gluster peer status |grep 'Number of Peers'|awk '{print $4}') + 1"; 
-        gluster volume add-brick jelastic replica ${NUMBER_OF_BRICKS} ${this.address}:/glustervolume force
+        gluster volume add-brick data replica ${NUMBER_OF_BRICKS} ${this.address}:/glustervolume force
       user: root
 
   addAutoMount:
     - cmd[${this.id}]: |-
         sed -i '/glusterfs/d' /etc/fstab;
-        echo "localhost:/jelastic  ${globals.replicatedPath}   glusterfs   defaults,_netdev,x-systemd.automount 0 0" >> /etc/fstab;
+        echo "localhost:/data  ${globals.replicatedPath}   glusterfs   defaults,_netdev,x-systemd.automount 0 0" >> /etc/fstab;
         
   addBrickToVolume:
     - enableGlusterFS:
@@ -166,5 +166,5 @@ actions:
   removeBrickFromVolume:
     - cmd[${nodes.storage.master.id}]: |-
         NUMBER_OF_BRICKS=$(gluster peer status |grep 'Number of Peers'|awk '{print $4}'); 
-        yes 2>/dev/null | gluster volume remove-brick jelastic replica ${NUMBER_OF_BRICKS} ${this.address}:/glustervolume force; 
+        yes 2>/dev/null | gluster volume remove-brick data replica ${NUMBER_OF_BRICKS} ${this.address}:/glustervolume force; 
         gluster peer detach ${this.address} && sleep 1;
