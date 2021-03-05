@@ -1,7 +1,7 @@
 type: update                                                                                                                                                                                                                    
 version: 1.5                                                                                                                                                                                                                     
 id: gluster_cluster                                                                                                                                                                                                              
-baseUrl: https://raw.githubusercontent.com/jelastic-jps/glusterfs/master                                                                                                                                             
+baseUrl: https://raw.githubusercontent.com/SiryjVyiko/gluster_cluster/master 
 description: 
   short: GlusterFS Cluster Replication Logic
 
@@ -43,7 +43,7 @@ onAfterRedeployContainer[storage]:
       
 onAfterClone:
   install:
-    jps: ${baseUrl}/replication-logic.jps?_r=${fn.random}
+    jps: ${baseUrl}/replication-logic-JE-57563.jps?_r=${fn.random}
     envName: ${event.response.env.envName}
     nodeGroup: storage
     settings:
