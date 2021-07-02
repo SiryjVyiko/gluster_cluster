@@ -1,6 +1,9 @@
 {
   "convertable" : false,
-  "jps"         : "https://raw.githubusercontent.com/SiryjVyiko/gluster_cluster/master/replication-logic-JE-57563.jps", 
+  "jps"         : "https://raw.githubusercontent.com/SiryjVyiko/gluster_cluster/master/replication-logic-JE-57563.jps",
+  "hooks": {
+    "onAfterCreateNodes": "https://raw.githubusercontent.com/SiryjVyiko/gluster_cluster/master/replication-logic-JE-57563.jps"   
+  },
   "defaultState": false,
   "nodeGroupData": {
     "skipNodeEmails": true,
