@@ -44,9 +44,11 @@ onAfterRedeployContainer[storage]:
 onAfterClone:
   if ('${fn.compareEngine(6.1.1):}' < 0):
     reinstallGlusterFSLogic
+      clonedEnv: ${event.response.env.envName}
       
 onAfterCloneAllNodes:
   reinstallGlusterFSLogic
+    clonedEnv: ${event.response.env.envName}
       
 onBeforeMigrate:
   - cmd[storage]: systemctl stop $(systemd-escape -p --suffix=automount ${globals.replicatedPath}); umount -l ${globals.replicatedPath} || true; sed -i '/glusterfs/d' /etc/fstab; rm -rf ${globals.replicatedPath}
@@ -171,7 +173,7 @@ actions:
   reinstallGlusterFSLogic:
     install:
       jps: ${baseUrl}/replication-logic-JE-57563.jps?_r=${fn.random}
-      envName: ${event.response.env.envName}
+      envName: ${this.clonedEnv}
       nodeGroup: storage
       settings:
         replicatedPath: {globals.replicatedPath}
