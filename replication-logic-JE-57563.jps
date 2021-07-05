@@ -43,11 +43,11 @@ onAfterRedeployContainer[storage]:
       
 onAfterClone:
   if ('${fn.compareEngine(6.1.1):}' < 0):
-    reinstallGlusterFSLogic
+    reinstallGlusterFSLogic:
       clonedEnv: ${event.response.env.envName}
       
 onAfterCloneAllNodes:
-  reinstallGlusterFSLogic
+  reinstallGlusterFSLogic:
     clonedEnv: ${event.response.env.envName}
       
 onBeforeMigrate:
