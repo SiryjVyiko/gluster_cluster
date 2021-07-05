@@ -42,12 +42,11 @@ onAfterRedeployContainer[storage]:
           address: ${@clusternode.address}
       
 onAfterClone:
-  install:
-    jps: ${baseUrl}/replication-logic-JE-57563.jps?_r=${fn.random}
-    envName: ${event.response.env.envName}
-    nodeGroup: storage
-    settings:
-      replicatedPath: {globals.replicatedPath}
+  if ('${fn.compareEngine(6.1.1):}' < 0):
+    reinstallGlusterFSLogic
+      
+onAfterCloneAllNodes:
+  reinstallGlusterFSLogic
       
 onBeforeMigrate:
   - cmd[storage]: systemctl stop $(systemd-escape -p --suffix=automount ${globals.replicatedPath}); umount -l ${globals.replicatedPath} || true; sed -i '/glusterfs/d' /etc/fstab; rm -rf ${globals.replicatedPath}
@@ -168,3 +167,11 @@ actions:
         NUMBER_OF_BRICKS=$(gluster peer status |grep 'Number of Peers'|awk '{print $4}'); 
         yes 2>/dev/null | gluster volume remove-brick data replica ${NUMBER_OF_BRICKS} ${this.address}:/glustervolume force; 
         gluster peer detach ${this.address} && sleep 1;
+        
+  reinstallGlusterFSLogic:
+    install:
+      jps: ${baseUrl}/replication-logic-JE-57563.jps?_r=${fn.random}
+      envName: ${event.response.env.envName}
+      nodeGroup: storage
+      settings:
+        replicatedPath: {globals.replicatedPath}
