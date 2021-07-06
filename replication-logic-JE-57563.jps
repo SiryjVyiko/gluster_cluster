@@ -45,7 +45,7 @@ onAfterClone:
   if ('${fn.compareEngine(6.1.1):}' < 0):
     install:
       jps: ${baseUrl}/replication-logic-JE-57563.jps?_r=${fn.random}
-      envName: ${this.clonedEnv}
+      envName: ${event.response.env.envName}
       nodeGroup: storage
       settings:
         replicatedPath: {globals.replicatedPath}
@@ -53,7 +53,7 @@ onAfterClone:
 onAfterCloneAllNodes:
   install:
     jps: ${baseUrl}/replication-logic-JE-57563.jps?_r=${fn.random}
-    envName: ${this.clonedEnv}
+    envName: ${event.response.env.envName}
     nodeGroup: storage
     settings:
       replicatedPath: {globals.replicatedPath}
