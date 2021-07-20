@@ -114,7 +114,7 @@ actions:
         BRICKS_ADDRESSES=$(gluster peer status|grep Hostname| awk '{print $2}'); BRICKS_STRING="${nodes.storage.master.address}:/glustervolume"; 
         for i in ${BRICKS_ADDRESSES}; do BRICKS_STRING="${BRICKS_STRING} ${i}:/glustervolume"; done; 
         gluster volume create jelastic replica ${NUMBER_OF_BRICKS} transport tcp ${BRICKS_STRING} force; gluster volume start jelastic; gluster volume set jelastic network.ping-timeout 3;
-        if [ -f /etc/jelastic/clients/${globals.replicatedVolume} ]; then gluster volume set data auth.allow $(cat /etc/jelastic/clients/data|tr ' ' ','); else gluster volume set ${globals.replicatedVolume} auth.allow 127.0.0.1; fi;
+        if [ -f /etc/jelastic/clients/${globals.replicatedVolume} ]; then gluster volume set ${globals.replicatedVolume} auth.allow $(cat /etc/jelastic/clients/data|tr ' ' ','); else gluster volume set ${globals.replicatedVolume} auth.allow 127.0.0.1; fi;
       user: root
       
   mountDirectoryToVolume:
